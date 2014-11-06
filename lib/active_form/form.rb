@@ -5,10 +5,13 @@ module ActiveForm
     delegate :id, :_destroy, :persisted?, to: :model
     attr_reader :association_name, :parent, :model, :proc
 
-    def initialize(assoc_name, parent, proc, model=nil)
+    def initialize(assoc_name, parent, proc, options = {})
       @association_name = assoc_name
       @parent = parent
+
+      model = options unless options.is_a?(Hash)
       @model = model || build_model
+
       @forms = []
       instance_eval(&proc) if proc
       enable_autosave
@@ -22,11 +25,9 @@ module ActiveForm
       define_singleton_method(name) { instance_variable_get("@#{name}").models }
       define_singleton_method("#{name}_attributes=") {}
 
-      definition = FormDefinition.new(name, block, options)
-      definition.parent = @model
-      definition.to_form.tap do |nested_form|
-        forms << nested_form
-        instance_variable_set("@#{name}", nested_form)
+      FormDefinition.new(name, block, options).build_for(@model).tap do |form|
+        forms << form
+        instance_variable_set("@#{name}", form)
       end
     end
 

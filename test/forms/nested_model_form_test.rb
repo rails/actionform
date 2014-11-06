@@ -20,12 +20,6 @@ class NestedModelFormTest < ActiveSupport::TestCase
     assert_respond_to UserWithEmailFormFixture, :forms
   end
 
-  test "forms list contains form definitions" do
-    email_definition = UserWithEmailFormFixture.forms.first
-
-    assert_equal :email, email_definition.assoc_name
-  end
-
   test "contains getter for email sub-form" do
     assert_respond_to @form, :email
     assert_instance_of ActiveForm::Form, @form.email

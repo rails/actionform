@@ -26,20 +26,6 @@ class ProjectFormTest < ActiveSupport::TestCase
     assert_respond_to ProjectForm, :association
   end
 
-  test "forms list contains sub-form definitions" do
-    assert_equal 4, ProjectForm.forms.size
-
-    tasks_definition = ProjectForm.forms[0]
-    contributors_definition = ProjectForm.forms[1]
-    project_tags_definition = ProjectForm.forms[2]
-    owner_definition = ProjectForm.forms[3]
-
-    assert_equal :tasks, tasks_definition.assoc_name
-    assert_equal :contributors, contributors_definition.assoc_name
-    assert_equal :project_tags, project_tags_definition.assoc_name
-    assert_equal :owner, owner_definition.assoc_name
-  end
-
   test "project form provides getter method for tasks sub-form" do
     assert_instance_of ActiveForm::CollectionForm, @tasks_form
   end

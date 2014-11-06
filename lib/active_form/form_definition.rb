@@ -1,29 +1,19 @@
 module ActiveForm
   class FormDefinition
-    attr_accessor :assoc_name, :proc, :parent, :records
+    attr_reader :assoc_name
 
-    def initialize(assoc_name, block, options={})
+    def initialize(assoc_name, block, options)
       @assoc_name = assoc_name
-      @proc = block
-      @records = options[:records]
+      @block = block
+      @options = options
     end
 
-    def to_form
-      macro = association_reflection.macro
-
-      case macro
-      when :has_one, :belongs_to
-        Form.new(assoc_name, parent, proc)
-      when :has_many
-        CollectionForm.new(assoc_name, parent, proc, {records: records})
-      end
-    end
-
-    private
-
-    def association_reflection
-      parent.class.reflect_on_association(@assoc_name)
+    def build_for(model)
+      if model.class.reflect_on_association(@assoc_name).macro == :has_many
+        CollectionForm
+      else
+        Form
+      end.new(@assoc_name, model, @block, @options)
     end
   end
-
 end

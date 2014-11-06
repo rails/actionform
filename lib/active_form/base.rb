@@ -53,7 +53,7 @@ module ActiveForm
         define_method(name) { instance_variable_get("@#{name}").models }
         define_method("#{name}_attributes=") {}
 
-        forms << FormDefinition.new(name, block, options)
+        forms << [name, options, block]
       end
 
       def forms
@@ -69,11 +69,10 @@ module ActiveForm
     private
 
     def populate_forms
-      self.class.forms.each do |definition|
-        definition.parent = model
-        definition.to_form.tap do |nested_form|
-          forms << nested_form
-          instance_variable_set("@#{definition.assoc_name}", nested_form)
+      self.class.forms.each do |(name, options, block)|
+        FormDefinition.new(name, block, options).build_for(model).tap do |form|
+          forms << form
+          instance_variable_set("@#{name}", form)
         end
       end
     end
