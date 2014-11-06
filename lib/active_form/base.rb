@@ -55,7 +55,7 @@ module ActiveForm
     class << self
       attr_accessor :main_class
       attr_writer :main_model
-      delegate :reflect_on_association, to: :main_class
+      delegate :reflect_on_association, to: :model_class
 
       def attributes(*names)
         options = names.pop if names.last.is_a?(Hash)
@@ -80,7 +80,7 @@ module ActiveForm
       alias_method :attribute, :attributes
 
       def association(name, options={}, &block)
-        macro = main_class.reflect_on_association(name).macro
+        macro = model_class.reflect_on_association(name).macro
 
         case macro
         when :has_one, :belongs_to
@@ -105,6 +105,11 @@ module ActiveForm
       def forms
         @forms ||= []
       end
+
+      private
+        def model_class
+          @model_class ||= main_model.to_s.camelize.constantize
+        end
     end
 
     private
