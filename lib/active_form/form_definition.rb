@@ -13,9 +13,7 @@ module ActiveForm
 
       case macro
       when :has_one, :belongs_to
-        form = Form.new(assoc_name, parent, proc)
-        form.instance_eval &proc
-        form
+        Form.new(assoc_name, parent, proc)
       when :has_many
         CollectionForm.new(assoc_name, parent, proc, {records: records})
       end
