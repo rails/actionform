@@ -6,6 +6,26 @@ module ActiveForm
       association_name.to_s == association.to_s
     end
 
+    def valid?
+      super
+      model.valid?
+
+      collect_errors_from(model)
+      aggregate_form_errors
+
+      errors.empty?
+    end
+
+    def submit(params)
+      params.each do |key, value|
+        if nested_params?(value)
+          fill_association_with_attributes(key, value)
+        else
+          send("#{key}=", value)
+        end
+      end
+    end
+
     private
       def nested_params?(params)
         params.is_a?(Hash)

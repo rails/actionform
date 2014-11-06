@@ -1,5 +1,7 @@
+require 'active_form/abstract_form'
+
 module ActiveForm
-  class Base
+  class Base < AbstractForm
     include ActiveModel::Model
     extend ActiveModel::Callbacks
 
@@ -20,40 +22,16 @@ module ActiveForm
       populate_forms
     end
 
-    def submit(params)
-      params.each do |key, value|
-        if nested_params?(value)
-          fill_association_with_attributes(key, value)
-        else
-          send("#{key}=", value)
-        end
-      end
-    end
-
     def get_model(association_name)
       form_representing(association_name).get_model(association_name)
     end
 
     def save
-      if valid?
-        run_callbacks :save do
-          ActiveRecord::Base.transaction do
-            model.save
-          end
-        end
-      else
-        false
+      return false unless valid?
+
+      run_callbacks :save do
+        ActiveRecord::Base.transaction { model.save }
       end
-    end
-
-    def valid?
-      super
-      model.valid?
-
-      collect_errors_from(model)
-      aggregate_form_errors
-
-      errors.empty?
     end
 
     class << self
@@ -125,10 +103,6 @@ module ActiveForm
 
     attr_reader :nested_forms
 
-    def nested_params?(value)
-      value.is_a?(Hash)
-    end
-
     def extract_association_name(association)
       $1.to_sym if /\A(.+)_attributes\z/ =~ association
     end
@@ -141,19 +115,5 @@ module ActiveForm
     def form_representing(association_name)
       nested_forms.find { |form| form.represents?(association_name) }
     end
-
-    def aggregate_form_errors
-      nested_forms.each do |form|
-        form.valid?
-        collect_errors_from(form)
-      end
-    end
-
-    def collect_errors_from(validatable_object)
-      validatable_object.errors.each do |attribute, error|
-        errors.add(attribute, error)
-      end
-    end
   end
-
 end

@@ -71,13 +71,7 @@ module ActiveForm
         @model = parent.send("build_#{association_name}")
       end
 
-      params.each do |key, value|
-        if nested_params?(value)
-          fill_association_with_attributes(key, value)
-        else
-          model.send("#{key}=", value)
-        end
-      end
+      super
     end
 
     def get_model(assoc_name)
@@ -90,16 +84,6 @@ module ActiveForm
 
     def delete
       model.mark_for_destruction
-    end
-
-    def valid?
-      super
-      model.valid?
-
-      collect_errors_from(model)
-      aggregate_form_errors
-
-      errors.empty?
     end
 
     private
