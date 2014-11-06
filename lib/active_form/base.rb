@@ -25,9 +25,8 @@ module ActiveForm
       end
     end
 
-    def get_model(assoc_name)
-      form = find_form_by_assoc_name(assoc_name)
-      form.get_model(assoc_name)
+    def get_model(association_name)
+      form_representing(association_name).get_model(association_name)
     end
 
     def save
@@ -123,21 +122,17 @@ module ActiveForm
       value.is_a?(Hash)
     end
 
-    ATTRIBUTES_KEY_REGEXP = /^(.+)_attributes$/
-
-    def find_association_name_in(key)
-      ATTRIBUTES_KEY_REGEXP.match(key)[1]
+    def extract_association_name(association)
+      $1.to_sym if /\A(.+)_attributes\z/ =~ association
     end
 
     def fill_association_with_attributes(association, attributes)
-      assoc_name = find_association_name_in(association).to_sym
-      form = find_form_by_assoc_name(assoc_name)
-
-      form.submit(attributes)
+      name = extract_association_name(association)
+      form_representing(name).submit(attributes)
     end
 
-    def find_form_by_assoc_name(assoc_name)
-      forms.select { |form| form.represents?(assoc_name) }.first
+    def form_representing(association_name)
+      forms.find { |form| form.represents?(association_name) }
     end
 
     def aggregate_form_errors
