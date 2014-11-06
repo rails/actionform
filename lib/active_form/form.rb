@@ -68,14 +68,6 @@ module ActiveForm
       super
     end
 
-    def get_model(assoc_name)
-      if represents?(assoc_name)
-        build_form
-      else
-        form_representing(assoc_name).get_model(assoc_name)
-      end
-    end
-
     def delete
       model.mark_for_destruction
     end

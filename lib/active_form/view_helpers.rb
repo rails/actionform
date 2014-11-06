@@ -51,7 +51,7 @@ module ActiveForm
     end
 
     def create_object(f, association)
-      f.object.get_model(association)
+      f.object.backing_form_for(association)
     end
 
     def get_partial_path(partial, association)

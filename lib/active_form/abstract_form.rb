@@ -2,6 +2,10 @@ module ActiveForm
   class AbstractForm
     include ActiveModel::Validations
 
+    def backing_form_for(association)
+      forms.find { |form| form.represents?(association) }
+    end
+
     def represents?(association)
       association_name.to_s == association.to_s
     end
@@ -39,21 +43,13 @@ module ActiveForm
         params.all? { |k, v| k == '_destroy' || v.blank? }
       end
 
-      def build_form(model = nil)
-        Form.new(association_name, parent, proc, model)
-      end
-
       def extract_association_name(association)
         $1.to_sym if /\A(.+)_attributes\z/ =~ association
       end
 
-      def form_representing(association_name)
-        forms.find { |form| form.represents?(association_name) }
-      end
-
       def assign_association_attributes(association, attributes)
         name = extract_association_name(association)
-        form_representing(name).submit(attributes)
+        backing_form_for(name).submit(attributes)
       end
 
       def aggregate_form_errors

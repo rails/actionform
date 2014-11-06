@@ -30,10 +30,6 @@ module ActiveForm
       end
     end
 
-    def get_model(assoc_name)
-      build_form
-    end
-
     def valid?
       aggregate_form_errors
 
@@ -115,6 +111,10 @@ module ActiveForm
     def destroy_form!(form)
       form.delete
       forms.delete(form)
+    end
+
+    def build_form(model = nil)
+      Form.new(association_name, parent, proc, model)
     end
 
     def associated_records

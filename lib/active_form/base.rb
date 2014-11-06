@@ -22,10 +22,6 @@ module ActiveForm
       populate_forms
     end
 
-    def get_model(association_name)
-      form_representing(association_name).get_model(association_name)
-    end
-
     def save
       return false unless valid?
 
