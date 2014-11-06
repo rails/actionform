@@ -34,7 +34,7 @@ module ActiveForm
       if valid?
         run_callbacks :save do
           ActiveRecord::Base.transaction do
-              model.save
+            model.save
           end
         end
       else

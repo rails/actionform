@@ -1,7 +1,7 @@
 module ActiveForm
   class FormDefinition
     attr_accessor :assoc_name, :proc, :parent, :records
-    
+
     def initialize(assoc_name, block, options={})
       @assoc_name = assoc_name
       @proc = block

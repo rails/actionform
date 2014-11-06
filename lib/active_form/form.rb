@@ -77,11 +77,11 @@ module ActiveForm
 
     def submit(params)
       reflection = association_reflection
-      
+
       if reflection.macro == :belongs_to
         @model = parent.send("build_#{association_name}") unless call_reject_if(params_for_current_scope(params))
       end
-      
+
       params.each do |key, value|
         if nested_params?(value)
           fill_association_with_attributes(key, value)
@@ -112,7 +112,7 @@ module ActiveForm
 
       collect_errors_from(model)
       aggregate_form_errors
-      
+
       errors.empty?
     end
 
@@ -132,7 +132,7 @@ module ActiveForm
     def fill_association_with_attributes(association, attributes)
       assoc_name = find_association_name_in(association).to_sym
       form = find_form_by_assoc_name(assoc_name)
-      
+
       form.submit(attributes)
     end
 

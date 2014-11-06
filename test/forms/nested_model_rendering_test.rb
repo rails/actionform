@@ -4,7 +4,7 @@ require_relative '../fixtures/user_with_email_form_fixture'
 
 class NestedModelRenderingTest < ActionView::TestCase
   fixtures :all
-  
+
   def form_for(*)
     @output_buffer = super
   end
@@ -180,7 +180,7 @@ class NestedModelRenderingTest < ActionView::TestCase
 
       concat f.label(:age)
       concat f.number_field(:age)
-      
+
       concat f.label(:gender)
       concat f.select(:gender, User.get_genders_dropdown)
 
@@ -303,7 +303,7 @@ class NestedModelRenderingTest < ActionView::TestCase
         concat artist_fields.label(:name)
         concat artist_fields.text_field(:name)
 
-        concat artist_fields.fields_for(:producer, producer) { |producer_fields| 
+        concat artist_fields.fields_for(:producer, producer) { |producer_fields|
           concat producer_fields.label(:name)
           concat producer_fields.text_field(:name)
 
@@ -324,7 +324,7 @@ class NestedModelRenderingTest < ActionView::TestCase
     assert_match /<input id="song_title" name="song\[title\]" type="text" \/>/, output_buffer
     assert_match /<label for="song_length">Length<\/label>/, output_buffer
     assert_match /input id="song_length" name="song\[length\]" type="text" \/>/, output_buffer
-    
+
     assert_match /<label for="song_artist_attributes_name">Name<\/label>/, output_buffer
     assert_match /<input id="song_artist_attributes_name" name="song\[artist_attributes\]\[name\]" type="text" \/>/, output_buffer
 
@@ -353,7 +353,7 @@ class NestedModelRenderingTest < ActionView::TestCase
         concat artist_fields.label(:name)
         concat artist_fields.text_field(:name)
 
-        concat artist_fields.fields_for(:producer, producer) { |producer_fields| 
+        concat artist_fields.fields_for(:producer, producer) { |producer_fields|
           concat producer_fields.label(:name)
           concat producer_fields.text_field(:name)
 
@@ -490,7 +490,7 @@ class NestedModelRenderingTest < ActionView::TestCase
     assert_match /<input id="conference_name" name="conference\[name\]" type="text" value="#{conference_form.name}" \/>/, output_buffer
     assert_match /<label for="conference_city">City<\/label>/, output_buffer
     assert_match /<input id="conference_city" name="conference\[city\]" type="text" value="#{conference_form.city}" \/>/, output_buffer
-    
+
     assert_match /<label for="conference_speaker_attributes_name">Name<\/label>/, output_buffer
     assert_match /<input id="conference_speaker_attributes_name" name="conference\[speaker_attributes\]\[name\]" type="text" value="#{speaker.name}" \/>/, output_buffer
     assert_match /<label for="conference_speaker_attributes_occupation">Occupation<\/label>/, output_buffer
@@ -579,11 +579,11 @@ class NestedModelRenderingTest < ActionView::TestCase
 
     assert_match /<label for="survey_name">Name<\/label>/, output_buffer
     assert_match /<input id="survey_name" name="survey\[name\]" type="text" value="#{survey_form.name}" \/>/, output_buffer
-  
+
     assert_match /<label for="survey_questions_attributes_0_content">Content<\/label>/, output_buffer
     assert_match /<input id="survey_questions_attributes_0_content" name="survey\[questions_attributes\]\[0\]\[content\]" type="text" value="Which language allows closures\?" \/>/, output_buffer
     assert_match /<input id="survey_questions_attributes_0_id" name="survey\[questions_attributes\]\[0\]\[id\]" type="hidden" value="#{questions[0].id}" \/>/, output_buffer
-  
+
     [0, 1].each do |i|
       assert_match /<label for="survey_questions_attributes_0_answers_attributes_#{i}_content">Content<\/label>/, output_buffer
       assert_match /<input id="survey_questions_attributes_0_answers_attributes_#{i}_content" name="survey\[questions_attributes\]\[0\]\[answers_attributes\]\[#{i}\]\[content\]" type="text" value="#{questions[0].answers[i].content}" \/>/, output_buffer

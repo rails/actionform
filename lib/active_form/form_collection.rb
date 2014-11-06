@@ -134,7 +134,7 @@ module ActiveForm
 
     def fetch_models
       associated_records = parent.send(association_name)
-      
+
       associated_records.each do |model|
         form = Form.new(association_name, parent, proc, model)
         forms << form

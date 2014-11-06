@@ -48,7 +48,7 @@ class ConferenceFormTest < ActiveSupport::TestCase
 
     assert_respond_to presentations_form, :models
     assert_equal 2, presentations_form.models.size
-    
+
     presentations_form.each do |form|
       assert_instance_of ActiveForm::Form, form
       assert_instance_of Presentation, form.model
@@ -309,7 +309,7 @@ class ConferenceFormTest < ActiveSupport::TestCase
     assert_equal "Rails OOP", form.speaker.presentations[1].topic
     assert_equal "1h", form.speaker.presentations[1].duration
     assert_equal 2, form.speaker.presentations.size
-    
+
     assert form.persisted?
   end
 
@@ -349,7 +349,7 @@ class ConferenceFormTest < ActiveSupport::TestCase
     assert_equal "Rails Migrations", form.speaker.presentations[2].topic
     assert_equal "1h", form.speaker.presentations[2].duration
     assert_equal 3, form.speaker.presentations.size
-    
+
     assert form.persisted?
   end
 

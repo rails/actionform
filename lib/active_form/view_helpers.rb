@@ -29,7 +29,7 @@ module ActiveForm
       else
         method_name = :fields_for
       end
-      
+
       f.send(method_name, association, new_object, {:child_index => "new_#{association}"}.merge(render_options)) do |builder|
         render(partial: partial, locals: {:f => builder})
       end
@@ -46,10 +46,10 @@ module ActiveForm
       new_object = create_object(f, association)
 
       html_options[:'data-association-insertion-template'] = CGI.escapeHTML(render_association(association, f, new_object, render_options, override_partial).to_str).html_safe
-        
+
       link_to(name, '#', html_options)
     end
-    
+
     def create_object(f, association)
       f.object.get_model(association)
     end

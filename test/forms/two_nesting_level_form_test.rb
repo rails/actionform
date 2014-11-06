@@ -135,7 +135,7 @@ class TwoNestingLevelFormTest < ActiveSupport::TestCase
         }
       }
     }
-    
+
     @form.submit(params)
 
     assert_not @form.valid?

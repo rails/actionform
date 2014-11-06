@@ -46,7 +46,7 @@ class TwoNestedCollectionsFormTest < ActiveSupport::TestCase
     questions_form = @form.forms.first
 
     assert_equal 1, questions_form.forms.size
-    
+
     @form.questions.each do |question_form|
       assert_instance_of ActiveForm::Form, question_form
       assert_instance_of Question, question_form.model
@@ -66,7 +66,7 @@ class TwoNestedCollectionsFormTest < ActiveSupport::TestCase
 
     assert_respond_to questions_form, :models
     assert_equal 1, questions_form.models.size
-    
+
     questions_form.each do |form|
       assert_instance_of ActiveForm::Form, form
       assert_instance_of Question, form.model

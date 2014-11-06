@@ -141,7 +141,7 @@ class SingleModelFormTest < ActiveSupport::TestCase
   test "responds to #persisted?" do
     assert_respond_to @form, :persisted?
     assert_not @form.persisted?
-    
+
     assert save_user
     assert @form.persisted?
   end
@@ -149,7 +149,7 @@ class SingleModelFormTest < ActiveSupport::TestCase
   test "responds to #to_key" do
     assert_respond_to @form, :to_key
     assert_nil @form.to_key
-    
+
     assert save_user
     assert_equal @user.to_key, @form.to_key
   end
@@ -157,7 +157,7 @@ class SingleModelFormTest < ActiveSupport::TestCase
   test "responds to #to_param" do
     assert_respond_to @form, :to_param
     assert_nil @form.to_param
-    
+
     assert save_user
     assert_equal @user.to_param, @form.to_param
   end
