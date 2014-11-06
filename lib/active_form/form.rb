@@ -1,5 +1,7 @@
+require 'active_form/abstract_form'
+
 module ActiveForm
-  class Form
+  class Form < AbstractForm
     include ActiveModel::Validations
 
     delegate :id, :_destroy, :persisted?, to: :model
@@ -19,11 +21,10 @@ module ActiveForm
     end
 
     def association(name, options={}, &block)
-      macro = model.class.reflect_on_association(name).macro
       form_definition = FormDefinition.new(name, block, options)
       form_definition.parent = @model
 
-      case macro
+      case model.class.reflect_on_association(name).macro
       when :has_one, :belongs_to
         class_eval "def #{name}; @#{name}; end"
       when :has_many
@@ -53,33 +54,21 @@ module ActiveForm
 
     alias_method :attribute, :attributes
 
-    def method_missing(method_sym, *arguments, &block)
-      if method_sym =~ /^validates?$/
-        class_eval do
-          send(method_sym, *arguments, &block)
-        end
-      end
+    def method_missing(method, *args, &block)
+      self.class.send(method, *args, &block) if method =~ /\Avalidates?\z/
     end
 
     def update_models
-      @model = parent.send("#{association_name}")
+      @model = parent.send(association_name)
     end
 
-    REJECT_ALL_BLANK_PROC = proc { |attributes| attributes.all? { |key, value| key == '_destroy' || value.blank? } }
-
-    def call_reject_if(attributes)
-      REJECT_ALL_BLANK_PROC.call(attributes)
-    end
-
-    def params_for_current_scope(attributes)
-      attributes.dup.reject { |_, v| v.is_a? Hash }
+    def reject_nested_params(params)
+      params.reject { |_, v| nested_params?(v) }
     end
 
     def submit(params)
-      reflection = association_reflection
-
-      if reflection.macro == :belongs_to
-        @model = parent.send("build_#{association_name}") unless call_reject_if(params_for_current_scope(params))
+      if belongs_to_association? && !reject_form?(reject_nested_params(params))
+        @model = parent.send("build_#{association_name}")
       end
 
       params.each do |key, value|
@@ -93,7 +82,7 @@ module ActiveForm
 
     def get_model(assoc_name)
       if represents?(assoc_name)
-        Form.new(association_name, parent, proc)
+        build_form
       else
         find_form_by_assoc_name(assoc_name).get_model(assoc_name)
       end
@@ -113,17 +102,12 @@ module ActiveForm
       errors.empty?
     end
 
-    def represents?(assoc_name)
-      association_name.to_s == assoc_name.to_s
-    end
-
     private
 
     ATTRIBUTES_KEY_REGEXP = /^(.+)_attributes$/
 
     def enable_autosave
-      reflection = association_reflection
-      reflection.autosave = true
+      association_reflection.autosave = true
     end
 
     def fill_association_with_attributes(association, attributes)
@@ -134,11 +118,7 @@ module ActiveForm
     end
 
     def find_form_by_assoc_name(assoc_name)
-      forms.select { |form| form.represents?(assoc_name) }.first
-    end
-
-    def nested_params?(value)
-      value.is_a?(Hash)
+      forms.find { |form| form.represents?(assoc_name) }
     end
 
     def find_association_name_in(key)
@@ -149,6 +129,10 @@ module ActiveForm
       parent.class.reflect_on_association(association_name)
     end
 
+    def belongs_to_association?
+      association_reflection.macro == :belongs_to
+    end
+
     def build_model
       case association_reflection.macro
       when :belongs_to
@@ -157,19 +141,6 @@ module ActiveForm
         parent.send(association_name) || parent.send("build_#{association_name}")
       when :has_many
         parent.send(association_name).build
-      end
-    end
-
-    def aggregate_form_errors
-      forms.each do |form|
-        form.valid?
-        collect_errors_from(form)
-      end
-    end
-
-    def collect_errors_from(validatable_object)
-      validatable_object.errors.each do |attribute, error|
-        errors.add(attribute, error)
       end
     end
   end

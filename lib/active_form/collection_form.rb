@@ -1,5 +1,7 @@
+require 'active_form/abstract_form'
+
 module ActiveForm
-  class CollectionForm
+  class CollectionForm < AbstractForm
     include ActiveModel::Validations
 
     attr_reader :association_name, :records, :parent, :proc, :forms
@@ -29,7 +31,7 @@ module ActiveForm
     end
 
     def get_model(assoc_name)
-      Form.new(assoc_name, parent, proc)
+      build_form
     end
 
     def valid?
@@ -38,27 +40,17 @@ module ActiveForm
       errors.empty?
     end
 
-    def represents?(assoc_name)
-      association_name.to_s == assoc_name.to_s
-    end
-
     def models
       forms
     end
 
     def each
-      forms.each do |form|
-        yield form
-      end
+      forms.each(&Proc.new)
     end
 
     private
 
     UNASSIGNABLE_KEYS = %w( id _destroy )
-
-    def reject_form?(attributes)
-      attributes.all? { |key, value| key == '_destroy' || value.blank? }
-    end
 
     def existing_record?(attributes)
       attributes[:id] != nil
@@ -73,7 +65,7 @@ module ActiveForm
     end
 
     def create_record(attributes)
-      build_form.submit(attributes)
+      build_form.tap { |f| forms << f }.submit(attributes)
     end
 
     def create_or_update_record(attributes)
@@ -108,25 +100,12 @@ module ActiveForm
       i > forms.size
     end
 
-    def aggregate_form_errors
-      forms.each do |form|
-        form.valid?
-        collect_errors_from(form)
-      end
-    end
-
     def fetch_models
-      associated_records.each { |model| build_form(model) }
+      associated_records.each { |model| forms << build_form(model) }
     end
 
     def initialize_models
-      records.times { build_form }
-    end
-
-    def collect_errors_from(model)
-      model.errors.each do |attribute, error|
-        errors.add(attribute, error)
-      end
+      records.times { forms << build_form }
     end
 
     def form_for_id(id)
@@ -136,12 +115,6 @@ module ActiveForm
     def destroy_form!(form)
       form.delete
       forms.delete(form)
-    end
-
-    def build_form(model = nil)
-      Form.new(association_name, parent, proc, model).tap do |form|
-        forms << form
-      end
     end
 
     def associated_records
