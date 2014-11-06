@@ -19,17 +19,17 @@ module ActiveForm
     end
 
     def submit(params)
-      params.each do |key, value|
+      params.each do |key, attributes|
         if parent.persisted?
-          create_or_update_record(value)
+          create_or_update_record(attributes)
         else
-          create_or_assign_record(key, value)
+          create_or_assign_record(key, attributes)
         end
       end
     end
 
     def get_model(assoc_name)
-      form = Form.new(association_name, parent, proc)
+      form = Form.new(assoc_name, parent, proc)
       form.instance_eval &proc
       form
     end
@@ -48,29 +48,18 @@ module ActiveForm
       forms
     end
 
-    def each(&block)
+    def each
       forms.each do |form|
-        block.call(form)
+        yield form
       end
     end
 
     private
 
-    REJECT_ALL_BLANK_PROC = proc { |attributes| attributes.all? { |key, value| key == '_destroy' || value.blank? } }
-
     UNASSIGNABLE_KEYS = %w( id _destroy )
 
-    def call_reject_if(attributes)
-      REJECT_ALL_BLANK_PROC.call(attributes)
-    end
-
-    def assign_to_or_mark_for_destruction(form, attributes)
-      form.submit(attributes.except(*UNASSIGNABLE_KEYS))
-
-      if has_destroy_flag?(attributes)
-        form.delete
-        remove_form(form)
-      end
+    def reject_form?(attributes)
+      attributes.all? { |key, value| key == '_destroy' || value.blank? }
     end
 
     def existing_record?(attributes)
@@ -78,14 +67,15 @@ module ActiveForm
     end
 
     def update_record(attributes)
-      id = attributes[:id]
-      form = find_form_by_model_id(id)
-      assign_to_or_mark_for_destruction(form, attributes)
+      form = form_for_id(attributes[:id].to_i)
+
+      form.submit(attributes.except(*UNASSIGNABLE_KEYS))
+
+      destroy_form!(form) if attributes['_destroy'] == "1"
     end
 
     def create_record(attributes)
-      new_form = create_form
-      new_form.submit(attributes)
+      build_form.submit(attributes)
     end
 
     def create_or_update_record(attributes)
@@ -102,15 +92,10 @@ module ActiveForm
       if dynamic_key?(i)
         create_record(attributes)
       else
-        if call_reject_if(attributes)
-          forms[i].delete
-        end
+        forms[i].delete if reject_form?(attributes)
+
         forms[i].submit(attributes)
       end
-    end
-
-    def has_destroy_flag?(attributes)
-      attributes['_destroy'] == "1"
     end
 
     def assign_forms
@@ -133,21 +118,11 @@ module ActiveForm
     end
 
     def fetch_models
-      associated_records = parent.send(association_name)
-
-      associated_records.each do |model|
-        form = Form.new(association_name, parent, proc, model)
-        forms << form
-        form.instance_eval &proc
-      end
+      associated_records.each { |model| build_form(model) }
     end
 
     def initialize_models
-      records.times do
-        form = Form.new(association_name, parent, proc)
-        forms << form
-        form.instance_eval &proc
-      end
+      records.times { build_form }
     end
 
     def collect_errors_from(model)
@@ -156,26 +131,24 @@ module ActiveForm
       end
     end
 
-    def check_record_limit!(limit, attributes_collection)
-      if attributes_collection.size > limit
-        raise TooManyRecords, "Maximum #{limit} records are allowed. Got #{attributes_collection.size} records instead."
-      end
+    def form_for_id(id)
+     forms.find { |form| form.id == id }
     end
 
-    def find_form_by_model_id(id)
-     forms.select { |form| form.id == id.to_i }.first
-    end
-
-    def remove_form(form)
+    def destroy_form!(form)
+      form.delete
       forms.delete(form)
     end
 
-    def create_form
-      new_form = Form.new(association_name, parent, proc)
-      forms << new_form
-      new_form.instance_eval &proc
-      new_form
+    def build_form(model = nil)
+      Form.new(association_name, parent, proc, model).tap do |form|
+        forms << form
+        form.instance_eval &proc
+      end
+    end
+
+    def associated_records
+      parent.send(association_name)
     end
   end
-
 end
