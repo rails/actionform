@@ -102,18 +102,5 @@ module ActiveForm
     end
 
     attr_reader :nested_forms
-
-    def extract_association_name(association)
-      $1.to_sym if /\A(.+)_attributes\z/ =~ association
-    end
-
-    def fill_association_with_attributes(association, attributes)
-      name = extract_association_name(association)
-      form_representing(name).submit(attributes)
-    end
-
-    def form_representing(association_name)
-      nested_forms.find { |form| form.represents?(association_name) }
-    end
   end
 end

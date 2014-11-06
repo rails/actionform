@@ -19,7 +19,7 @@ module ActiveForm
     def submit(params)
       params.each do |key, value|
         if nested_params?(value)
-          fill_association_with_attributes(key, value)
+          assign_association_attributes(key, value)
         else
           send("#{key}=", value)
         end
@@ -37,6 +37,19 @@ module ActiveForm
 
       def build_form(model = nil)
         Form.new(association_name, parent, proc, model)
+      end
+
+      def extract_association_name(association)
+        $1.to_sym if /\A(.+)_attributes\z/ =~ association
+      end
+
+      def form_representing(association_name)
+        forms.find { |form| form.represents?(association_name) }
+      end
+
+      def assign_association_attributes(association, attributes)
+        name = extract_association_name(association)
+        form_representing(name).submit(attributes)
       end
 
       def aggregate_form_errors

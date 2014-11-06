@@ -78,7 +78,7 @@ module ActiveForm
       if represents?(assoc_name)
         build_form
       else
-        find_form_by_assoc_name(assoc_name).get_model(assoc_name)
+        form_representing(assoc_name).get_model(assoc_name)
       end
     end
 
@@ -88,25 +88,8 @@ module ActiveForm
 
     private
 
-    ATTRIBUTES_KEY_REGEXP = /^(.+)_attributes$/
-
     def enable_autosave
       association_reflection.autosave = true
-    end
-
-    def fill_association_with_attributes(association, attributes)
-      assoc_name = find_association_name_in(association).to_sym
-      form = find_form_by_assoc_name(assoc_name)
-
-      form.submit(attributes)
-    end
-
-    def find_form_by_assoc_name(assoc_name)
-      forms.find { |form| form.represents?(assoc_name) }
-    end
-
-    def find_association_name_in(key)
-      ATTRIBUTES_KEY_REGEXP.match(key)[1]
     end
 
     def association_reflection
