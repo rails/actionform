@@ -3,30 +3,22 @@ require 'active_form/abstract_form'
 module ActiveForm
   class Base < AbstractForm
     include ActiveModel::Model
-    extend ActiveModel::Callbacks
-
-    define_model_callbacks :save, only: [:after]
-    after_save :update_form_models
 
     delegate :persisted?, :to_model, :to_key, :to_param, :to_partial_path, to: :model
-    attr_reader :model
-
-    # Compatibility method
-    def forms
-      @nested_forms
-    end
+    attr_reader :model, :forms
 
     def initialize(model)
       @model = model
-      @nested_forms = []
+
+      @forms = []
       populate_forms
     end
 
     def save
       return false unless valid?
 
-      run_callbacks :save do
-        ActiveRecord::Base.transaction { model.save }
+      if ActiveRecord::Base.transaction { model.save }
+        forms.each(&:reset)
       end
     end
 
@@ -76,20 +68,14 @@ module ActiveForm
 
     private
 
-    def update_form_models
-      nested_forms.each(&:update_models)
-    end
-
     def populate_forms
       self.class.forms.each do |definition|
         definition.parent = model
         definition.to_form.tap do |nested_form|
-          nested_forms << nested_form
+          forms << nested_form
           instance_variable_set("@#{definition.assoc_name}", nested_form)
         end
       end
     end
-
-    attr_reader :nested_forms
   end
 end

@@ -15,8 +15,8 @@ module ActiveForm
       assign_forms
     end
 
-    def update_models
-      @forms = []
+    def reset
+      @forms.clear
       fetch_models
     end
 

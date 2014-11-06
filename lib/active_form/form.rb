@@ -52,7 +52,7 @@ module ActiveForm
       self.class.send(method, *args, &block) if method =~ /\Avalidates?\z/
     end
 
-    def update_models
+    def reset
       @model = parent.send(association_name)
     end
 
