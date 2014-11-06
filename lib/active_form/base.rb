@@ -7,11 +7,16 @@ module ActiveForm
     after_save :update_form_models
 
     delegate :persisted?, :to_model, :to_key, :to_param, :to_partial_path, to: :model
-    attr_reader :model, :forms
+    attr_reader :model
+
+    # Compatibility method
+    def forms
+      @nested_forms
+    end
 
     def initialize(model)
       @model = model
-      @forms = []
+      @nested_forms = []
       populate_forms
     end
 
@@ -105,18 +110,20 @@ module ActiveForm
     private
 
     def update_form_models
-      forms.each(&:update_models)
+      nested_forms.each(&:update_models)
     end
 
     def populate_forms
       self.class.forms.each do |definition|
         definition.parent = model
-        nested_form = definition.to_form
-        forms << nested_form
-        name = definition.assoc_name
-        instance_variable_set("@#{name}", nested_form)
+        definition.to_form.tap do |nested_form|
+          nested_forms << nested_form
+          instance_variable_set("@#{definition.assoc_name}", nested_form)
+        end
       end
     end
+
+    attr_reader :nested_forms
 
     def nested_params?(value)
       value.is_a?(Hash)
@@ -132,11 +139,11 @@ module ActiveForm
     end
 
     def form_representing(association_name)
-      forms.find { |form| form.represents?(association_name) }
+      nested_forms.find { |form| form.represents?(association_name) }
     end
 
     def aggregate_form_errors
-      forms.each do |form|
+      nested_forms.each do |form|
         form.valid?
         collect_errors_from(form)
       end
