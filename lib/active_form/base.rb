@@ -110,9 +110,7 @@ module ActiveForm
     private
 
     def update_form_models
-      forms.each do |form|
-        form.update_models
-      end
+      forms.each(&:update_models)
     end
 
     def populate_forms
