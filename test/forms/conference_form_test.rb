@@ -14,7 +14,7 @@ class ConferenceFormTest < ActiveSupport::TestCase
     assert_respond_to @form.speaker, :presentations
 
     presentations_form = @form.speaker.forms.first
-    assert_instance_of ActiveForm::FormCollection, presentations_form
+    assert_instance_of ActiveForm::CollectionForm, presentations_form
   end
 
   test "#represents? returns true if the argument matches the Form's association name, false otherwise" do

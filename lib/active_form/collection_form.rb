@@ -1,5 +1,5 @@
 module ActiveForm
-  class FormCollection
+  class CollectionForm
     include ActiveModel::Validations
 
     attr_reader :association_name, :records, :parent, :proc, :forms

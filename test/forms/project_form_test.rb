@@ -41,11 +41,11 @@ class ProjectFormTest < ActiveSupport::TestCase
   end
 
   test "project form provides getter method for tasks sub-form" do
-    assert_instance_of ActiveForm::FormCollection, @tasks_form
+    assert_instance_of ActiveForm::CollectionForm, @tasks_form
   end
 
   test "project form provides getter method for contributors sub-form" do
-    assert_instance_of ActiveForm::FormCollection, @contributors_form
+    assert_instance_of ActiveForm::CollectionForm, @contributors_form
   end
 
   test "project form provides getter method for project_tags sub-form" do

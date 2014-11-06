@@ -17,7 +17,7 @@ module ActiveForm
         form.instance_eval &proc
         form
       when :has_many
-        FormCollection.new(assoc_name, parent, proc, {records: records})
+        CollectionForm.new(assoc_name, parent, proc, {records: records})
       end
     end
 
