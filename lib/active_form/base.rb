@@ -79,27 +79,18 @@ module ActiveForm
 
       alias_method :attribute, :attributes
 
-      def association(name, options={}, &block)
-        macro = model_class.reflect_on_association(name).macro
-
-        case macro
+      def association(name, options = {}, &block)
+        case model_class.reflect_on_association(name).macro
         when :has_one, :belongs_to
-          declare_form(name, &block)
+          attr_reader name
         when :has_many
-          declare_form_collection(name, options, &block)
+          define_method name do
+            instance_variable_get("@#{name}").models
+          end
         end
 
-        define_method("#{name}_attributes=") {}
-      end
-
-      def declare_form_collection(name, options={}, &block)
         forms << FormDefinition.new(name, block, options)
-        class_eval("def #{name}; @#{name}.models; end")
-      end
-
-      def declare_form(name, &block)
-        forms << FormDefinition.new(name, block)
-        attr_reader name
+        define_method("#{name}_attributes=") {}
       end
 
       def forms
