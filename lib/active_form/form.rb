@@ -2,10 +2,8 @@ require 'active_form/abstract_form'
 
 module ActiveForm
   class Form < AbstractForm
-    include ActiveModel::Validations
-
     delegate :id, :_destroy, :persisted?, to: :model
-    attr_reader :association_name, :parent, :model, :forms, :proc
+    attr_reader :association_name, :parent, :model, :proc
 
     def initialize(assoc_name, parent, proc, model=nil)
       @association_name = assoc_name

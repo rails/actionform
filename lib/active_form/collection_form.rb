@@ -2,9 +2,7 @@ require 'active_form/abstract_form'
 
 module ActiveForm
   class CollectionForm < AbstractForm
-    include ActiveModel::Validations
-
-    attr_reader :association_name, :records, :parent, :proc, :forms
+    attr_reader :association_name, :records, :parent, :proc
 
     def initialize(assoc_name, parent, proc, options)
       @association_name = assoc_name

@@ -2,6 +2,8 @@ module ActiveForm
   class AbstractForm
     include ActiveModel::Validations
 
+    attr_reader :forms
+
     def backing_form_for(association)
       forms.find { |form| form.represents?(association) }
     end

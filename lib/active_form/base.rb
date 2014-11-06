@@ -5,7 +5,7 @@ module ActiveForm
     include ActiveModel::Model
 
     delegate :persisted?, :to_model, :to_key, :to_param, :to_partial_path, to: :model
-    attr_reader :model, :forms
+    attr_reader :model
 
     def initialize(model)
       @model = model
