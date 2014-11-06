@@ -8,7 +8,7 @@ module ActiveForm
     def initialize(assoc_name, parent, proc, model=nil)
       @association_name = assoc_name
       @parent = parent
-      @model = assign_model(model)
+      @model = model || build_model
       @forms = []
       instance_eval(&proc) if proc
       enable_autosave
@@ -150,35 +150,13 @@ module ActiveForm
     end
 
     def build_model
-      macro = association_reflection.macro
-
-      case macro
+      case association_reflection.macro
       when :belongs_to
-        if parent.send("#{association_name}")
-          parent.send("#{association_name}")
-        else
-          association_reflection.klass.new
-        end
+        parent.send(association_name) || association_reflection.klass.new
       when :has_one
-        fetch_or_initialize_model
+        parent.send(association_name) || parent.send("build_#{association_name}")
       when :has_many
         parent.send(association_name).build
-      end
-    end
-
-    def fetch_or_initialize_model
-      if parent.send("#{association_name}")
-        parent.send("#{association_name}")
-      else
-        parent.send("build_#{association_name}")
-      end
-    end
-
-    def assign_model(model)
-      if model
-        model
-      else
-        build_model
       end
     end
 
@@ -195,5 +173,4 @@ module ActiveForm
       end
     end
   end
-
 end
