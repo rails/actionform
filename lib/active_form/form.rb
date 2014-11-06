@@ -20,22 +20,16 @@ module ActiveForm
       model.class
     end
 
-    def association(name, options={}, &block)
-      form_definition = FormDefinition.new(name, block, options)
-      form_definition.parent = @model
+    def association(name, options = {}, &block)
+      define_singleton_method(name) { instance_variable_get("@#{name}").models }
+      define_singleton_method("#{name}_attributes=") {}
 
-      case model.class.reflect_on_association(name).macro
-      when :has_one, :belongs_to
-        class_eval "def #{name}; @#{name}; end"
-      when :has_many
-        class_eval "def #{name}; @#{name}.models; end"
+      definition = FormDefinition.new(name, block, options)
+      definition.parent = @model
+      definition.to_form.tap do |nested_form|
+        forms << nested_form
+        instance_variable_set("@#{name}", nested_form)
       end
-
-      nested_form = form_definition.to_form
-      @forms << nested_form
-      instance_variable_set("@#{name}", nested_form)
-
-      class_eval "def #{name}_attributes=; end"
     end
 
     def attributes(*arguments)

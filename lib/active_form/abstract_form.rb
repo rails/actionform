@@ -26,6 +26,10 @@ module ActiveForm
       end
     end
 
+    def models
+      self
+    end
+
     private
       def nested_params?(params)
         params.is_a?(Hash)
