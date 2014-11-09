@@ -11,27 +11,14 @@ class ConferenceFormTest < ActiveSupport::TestCase
   end
 
   test "contains getter for presentations sub-form" do
-    assert_respond_to @form.speaker, :presentations
-
-    presentations_form = @form.speaker.forms.first
-    assert_instance_of ActiveForm::CollectionForm, presentations_form
-  end
-
-  test "#represents? returns true if the argument matches the Form's association name, false otherwise" do
-    presentations_form = @form.speaker.forms.first
-
-    assert presentations_form.represents?("presentations")
-    assert_not presentations_form.represents?("presentation")
+    assert @form.speaker.presentations
   end
 
   test "main form provides getter method for collection objects" do
     assert_respond_to @form.speaker, :presentations
 
-    presentations = @form.speaker.presentations
-
-    presentations.each do |form|
-      assert_instance_of ActiveForm::Form, form
-      assert_instance_of Presentation, form.model
+    @form.speaker.presentations.each do |model|
+      assert_instance_of Presentation, model
     end
   end
 
@@ -46,12 +33,10 @@ class ConferenceFormTest < ActiveSupport::TestCase
   test "presentations sub-form initializes the number of records specified" do
     presentations_form = @form.speaker.forms.first
 
-    assert_respond_to presentations_form, :models
-    assert_equal 2, presentations_form.models.size
+    assert_equal 2, presentations_form.size
 
-    presentations_form.each do |form|
-      assert_instance_of ActiveForm::Form, form
-      assert_instance_of Presentation, form.model
+    presentations_form.each do |model|
+      assert_instance_of Presentation, form
 
       assert_respond_to form, :topic
       assert_respond_to form, :topic=

@@ -1,80 +1,75 @@
-require 'active_form/abstract_form'
+require 'active_form/model_association'
+require 'active_form/collection_association'
+require 'active_form/associatable'
 
 module ActiveForm
-  class Base < AbstractForm
-    include ActiveModel::Model
+  class Base
+    extend Associatable
 
-    delegate :persisted?, :to_model, :to_key, :to_param, :to_partial_path, to: :model
-    attr_reader :model
-
-    def initialize(model)
-      @model = model
-
-      @forms = []
-      populate_forms
+    # SignupForm.new(user: User.find(params[:user_id]))
+    def initialize(models = nil)
+      if models.respond_to?(:each)
+        assign_attributes(models)
+      else
+        main_association.instance = models
+      end
     end
 
     def save
       return false unless valid?
 
-      if ActiveRecord::Base.transaction { model.save }
-        forms.each(&:reset)
+      ActiveRecord::Base.transaction do
+        main_association.save
       end
     end
 
+    def submit(params)
+      assign_attributes(params)
+    end
+
+    mattr_accessor :main_model, instance_writer: false
+
+    delegate :id, :persisted?, :to_model, :to_partial_path, to: :main_association
+
     class << self
-      attr_accessor :main_class
-      attr_writer :main_model
-      delegate :reflect_on_association, to: :model_class
+      delegate :attributes, :association_scope, to: :main_association
 
-      def attributes(*names)
-        options = names.pop if names.last.is_a?(Hash)
-
-        if options && options[:required]
-          validates_presence_of *names
-        end
-
-        names.each do |attribute|
-          delegate attribute, "#{attribute}=", to: :model
-        end
-      end
-
-      def main_class
-        @main_class ||= main_model.to_s.camelize.constantize
+      def main_association
+        @@main_association ||= \
+          if main_model
+            ModelAssociation.new(main_model)
+          else
+            raise ArgumentError, "you need to set the main_model for this form," \
+              " like self.main_model = :article"
+          end
       end
 
       def main_model
-        @main_model ||= name.sub(/Form$/, '').singularize
+        @main_model ||= name.sub(/Form$/, '').singularize.camelize.constantize
       end
-
-      alias_method :attribute, :attributes
-
-      def association(name, options = {}, &block)
-        define_method(name) { instance_variable_get("@#{name}").models }
-        define_method("#{name}_attributes=") {}
-
-        forms << [name, options, block]
-      end
-
-      def forms
-        @forms ||= []
-      end
-
-      private
-        def model_class
-          @model_class ||= main_model.to_s.camelize.constantize
-        end
     end
 
     private
+      def respond_to_missing?(meth, include_private = false)
+        main_association.respond_to?(meth)
+      end
 
-    def populate_forms
-      self.class.forms.each do |(name, options, block)|
-        FormDefinition.new(name, block, options).build_for(model).tap do |form|
-          forms << form
-          instance_variable_set("@#{name}", form)
+      def method_missing(meth, *args, &block)
+        if main_association.respond_to?(meth)
+          main_association.send(meth, *args, &block)
+        else
+          super
         end
       end
-    end
+
+      def main_association
+        @@main_association
+      end
+
+      def assign_attributes(attributes)
+        attributes.each do |key, value|
+          self.public_send("#{key}=", value)
+        end if attributes
+      end
   end
 end
