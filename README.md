@@ -19,18 +19,18 @@ Consider an example where you want to create/update a conference that can have m
 
 ```ruby
 class ConferenceForm < ActiveForm::Base
-  self.main_model = :conference
-
   attributes :name, :city
 
   validates :name, :city, presence: true
 end
 ```
 
-Your form object has to subclass `ActiveForm::Base` in order to gain the necessary API. When defining the form, you have to specify the main_model the form represents with the following line:
+Your form object has to subclass `ActiveForm::Base` in order to gain the necessary API. When defining the form, it will use the model from the form class name, e.g. `ConferenceForm` => `Conference`. If you use custom class name, you have to specify the main_model the form represents with the following line:
 
 ```ruby
-self.main_model = :conference
+class MyConferenceForm
+  self.main_model = :conference
+end
 ```
 
 To add fields to the form, use the `attributes` or `attribute` class method. The form can also define validation rules for the model it represents. For the `presence` validation rule there is a short inline syntax:

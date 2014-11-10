@@ -29,7 +29,7 @@ and one checkbox.
 
 ### Create the Form
 
-Active Form provides a Rails generator to create jobs. The following will create a
+Active Form provides a Rails generator to create forms. The following will create a
 form in `app/forms` (with an attached test case under `test/forms`):
 
 ```bash
@@ -48,10 +48,18 @@ If you don't want to use a generator, you could create your own file inside of
 Here's what a form looks like:
 
 ```ruby
-class SignupForm < ActiveJob::Base
+class SignupForm < ActiveForm::Base
   self.main_model = :user
 
   attributes :email, :password, required: true
+end
+```
+
+Your form object has to subclass `ActiveForm::Base` in order to gain the necessary API. When defining the form, it will use the model from the form class name, e.g. `ConferenceForm` => `Conference`. If you use custom class name, you have to specify the main_model the form represents with the following line:
+
+```ruby
+class MyConferenceForm
+  self.main_model = :conference
 end
 ```
 
@@ -118,11 +126,15 @@ Your `@signup_form` is now ready to be rendered:
 # Submit empty params
 @signup_form.submit({})
 => false
+@signup.form.valid?
+=> false
 @signup_form.errors.count
 => 2
 
 # Submit valid attributes
-@signup_form.submit({email: "dhh@example.com", password: "secret"})
+@signup_form.submit(email: "dhh@example.com", password: "secret")
+=> true
+@signup.form.valid?
 => true
 @signup_form.errors.count
 => 0
