@@ -1,8 +1,7 @@
 Active Form Basics
 =================
 
-This guide provides you with all you need to get started in creating,
-enqueueing and executing background jobs.
+This guide provides you with all you need to get started in creating and submitting forms.
 
 After reading this guide, you will know:
 
@@ -46,7 +45,7 @@ Rails.
 If you don't want to use a generator, you could create your own file inside of
 `app/forms`, just make sure that it inherits from `ActiveForm::Base`.
 
-Here's what a job looks like:
+Here's what a form looks like:
 
 ```ruby
 class SignupForm < ActiveJob::Base
@@ -61,7 +60,7 @@ end
 In your controller you create a form instance and pass in the model you want to work on.
 
 ```ruby
-class ConferencesController
+class SignupController
   def new
     user = User.new
     @signup_form = SignupForm.new(user)
@@ -95,13 +94,23 @@ Your `@signup_form` is now ready to be rendered:
 
 ```erb
 <% form_for @signup_form do |f| %>
+  <% if @signup_form.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@signup_form.errors.count, "error") %> prohibited this form from being saved:</h2>
 
+      <ul>
+      <% @signup_form.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
   <%= f.text_field :email %>
   <%= f.text_field :password %>
 <% end %>
 ```
 
-## Reviewing form API
+## Form API
 
 `SignupForm` instance you have initialized from controller have API similar to ActiveRecord:
 
@@ -308,12 +317,8 @@ And `conferences/_presentation_fields.html.erb` would be:
 Callbacks
 ---------
 
-Active Job provides hooks during the lifecycle of a job. Callbacks allow you to
-trigger logic during the lifecycle of a job.
-
-### Available callbacks
-
-* `after_save`
+Active Form provides `after_save` callback. Callbacks allow you to
+trigger logic during the lifecycle of a form.
 
 ### Usage
 
@@ -321,10 +326,15 @@ trigger logic during the lifecycle of a job.
 class SignupForm < ActiveForm::Base
   self.main_model = :user
 
-  after_save :notify_user
+  after_save :notify_with_email
 
-  def notify_user
+  def notify_with_email
     UserMailer.signup_email(model.id)
   end
 end
 ```
+
+Testing forms
+-------------
+
+TODO
