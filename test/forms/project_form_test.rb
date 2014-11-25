@@ -48,7 +48,7 @@ class ProjectFormTest < ActiveSupport::TestCase
     assert_instance_of ActiveForm::FormCollection, @contributors_form
   end
 
-  test "project form provides getter methpd fpr project_tags sub-form" do
+  test "project form provides getter method for project_tags sub-form" do
     assert_instance_of ActiveForm::FormCollection, @project_tags_form
   end
 
