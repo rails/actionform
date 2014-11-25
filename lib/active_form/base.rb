@@ -5,16 +5,16 @@ module ActiveForm
 
     define_model_callbacks :save, only: [:after]
     after_save :update_form_models
-    
+
     delegate :persisted?, :to_model, :to_key, :to_param, :to_partial_path, to: :model
     attr_reader :model, :forms
-    
+
     def initialize(model)
       @model = model
       @forms = []
       populate_forms
     end
-    
+
     def submit(params)
       params.each do |key, value|
         if nested_params?(value)
@@ -48,12 +48,13 @@ module ActiveForm
 
       collect_errors_from(model)
       aggregate_form_errors
-      
+
       errors.empty?
     end
 
     class << self
-      attr_accessor :main_class, :main_model
+      attr_accessor :main_class
+      attr_writer :main_model
       delegate :reflect_on_association, to: :main_class
 
       def attributes(*names)
@@ -69,7 +70,11 @@ module ActiveForm
       end
 
       def main_class
-        @main_class = main_model.to_s.camelize.constantize
+        @main_class ||= main_model.to_s.camelize.constantize
+      end
+
+      def main_model
+        @main_model ||= name.sub(/Form$/, '').singularize
       end
 
       alias_method :attribute, :attributes

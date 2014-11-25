@@ -1,5 +1,4 @@
 class ConferenceForm < ActiveForm::Base
-  self.main_model = :conference
   attributes :name, :city, required: true
 
   association :speaker do
