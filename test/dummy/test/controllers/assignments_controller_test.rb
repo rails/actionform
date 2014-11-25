@@ -110,7 +110,7 @@ class AssignmentsControllerTest < ActionController::TestCase
     assert_equal "Assignment: Car service was successfully updated.", flash[:notice]
   end
 
-  test "should destroy assignmen" do
+  test "should destroy assignment" do
     assert_difference('Assignment.count', -1) do
       delete :destroy, id: @assignment
     end
