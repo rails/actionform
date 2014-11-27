@@ -27,12 +27,12 @@ module ActiveForm
       assign_attributes(params)
     end
 
-    mattr_accessor :main_model, instance_writer: false
-
     delegate :id, :persisted?, :to_model, :to_partial_path, to: :main_association
 
     class << self
       delegate :attributes, :association_scope, to: :main_association
+
+      attr_writer :main_model
 
       private
         def main_association
