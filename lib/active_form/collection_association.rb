@@ -11,6 +11,10 @@ module ActiveForm
       true # means we can add more instances in a form
     end
 
+    def records
+      size
+    end
+
     delegate :each, :size, :[], to: :@instances
 
     # Map model attributes by key to association

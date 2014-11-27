@@ -25,7 +25,6 @@ class ConferenceFormTest < ActiveSupport::TestCase
   test "presentations sub-form contains association name and parent model" do
     presentations_form = @form.speaker.forms.first
 
-    assert_equal :presentations, presentations_form.association_name
     assert_equal 2, presentations_form.records
     assert_equal @form.speaker.model, presentations_form.parent
   end

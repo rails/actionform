@@ -60,7 +60,7 @@ module ActiveForm
     end
 
     def valid?
-      aggregate(&:valid?)
+      aggregate(&:valid?).any?(&:blank?)
     end
 
     delegate :reflect_on_association, to: :model_class
