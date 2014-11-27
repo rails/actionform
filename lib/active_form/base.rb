@@ -16,11 +16,7 @@ module ActiveForm
     end
 
     def save
-      return false unless valid?
-
-      ActiveRecord::Base.transaction do
-        main_association.save
-      end
+      main_association.save if valid?
     end
 
     def submit(params)
