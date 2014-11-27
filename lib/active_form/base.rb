@@ -44,9 +44,10 @@ module ActiveForm
           end
       end
 
-      def main_model
-        @main_model ||= name.sub(/Form$/, '').singularize.camelize.constantize
-      end
+      private
+        def main_model
+          @main_model ||= name.sub(/Form$/, '')
+        end
     end
 
     private
