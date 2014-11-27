@@ -1,16 +1,19 @@
+require 'active_form/abstract_form'
+
 module ActiveForm
-  class Form
-    include ActiveModel::Validations
-
+  class Form < AbstractForm
     delegate :id, :_destroy, :persisted?, to: :model
-    attr_reader :association_name, :parent, :model, :forms, :proc
+    attr_reader :association_name, :parent, :model, :proc
 
-    def initialize(assoc_name, parent, proc, model=nil)
+    def initialize(assoc_name, parent, proc, options = {})
       @association_name = assoc_name
       @parent = parent
-      @model = assign_model(model)
+
+      model = options unless options.is_a?(Hash)
+      @model = model || build_model
+
       @forms = []
-      @proc = proc
+      instance_eval(&proc) if proc
       enable_autosave
     end
 
@@ -18,23 +21,14 @@ module ActiveForm
       model.class
     end
 
-    def association(name, options={}, &block)
-      macro = model.class.reflect_on_association(name).macro
-      form_definition = FormDefinition.new(name, block, options)
-      form_definition.parent = @model
+    def association(name, options = {}, &block)
+      define_singleton_method(name) { instance_variable_get("@#{name}").models }
+      define_singleton_method("#{name}_attributes=") {}
 
-      case macro
-      when :has_one, :belongs_to
-        class_eval "def #{name}; @#{name}; end"
-      when :has_many
-        class_eval "def #{name}; @#{name}.models; end"
+      FormDefinition.new(name, block, options).build_for(@model).tap do |form|
+        forms << form
+        instance_variable_set("@#{name}", form)
       end
-
-      nested_form = form_definition.to_form
-      @forms << nested_form
-      instance_variable_set("@#{name}", nested_form)
-
-      class_eval "def #{name}_attributes=; end"
     end
 
     def attributes(*arguments)
@@ -53,150 +47,53 @@ module ActiveForm
 
     alias_method :attribute, :attributes
 
-    def method_missing(method_sym, *arguments, &block)
-      if method_sym =~ /^validates?$/
-        class_eval do
-          send(method_sym, *arguments, &block)
-        end
-      end
+    def method_missing(method, *args, &block)
+      self.class.send(method, *args, &block) if method =~ /\Avalidates?\z/
     end
 
-    def update_models
-      @model = parent.send("#{association_name}")
+    def reset
+      @model = parent.send(association_name)
     end
 
-    REJECT_ALL_BLANK_PROC = proc { |attributes| attributes.all? { |key, value| key == '_destroy' || value.blank? } }
-
-    def call_reject_if(attributes)
-      REJECT_ALL_BLANK_PROC.call(attributes)
-    end
-
-    def params_for_current_scope(attributes)
-      attributes.dup.reject { |_, v| v.is_a? Hash }
+    def reject_nested_params(params)
+      params.reject { |_, v| nested_params?(v) }
     end
 
     def submit(params)
-      reflection = association_reflection
-      
-      if reflection.macro == :belongs_to
-        @model = parent.send("build_#{association_name}") unless call_reject_if(params_for_current_scope(params))
+      if belongs_to_association? && !reject_form?(reject_nested_params(params))
+        @model = parent.send("build_#{association_name}")
       end
-      
-      params.each do |key, value|
-        if nested_params?(value)
-          fill_association_with_attributes(key, value)
-        else
-          model.send("#{key}=", value)
-        end
-      end
-    end
 
-    def get_model(assoc_name)
-      if represents?(assoc_name)
-        form = Form.new(association_name, parent, proc)
-        form.instance_eval &proc
-        form
-      else
-        form = find_form_by_assoc_name(assoc_name)
-        form.get_model(assoc_name)
-      end
+      super
     end
 
     def delete
       model.mark_for_destruction
     end
 
-    def valid?
-      super
-      model.valid?
-
-      collect_errors_from(model)
-      aggregate_form_errors
-      
-      errors.empty?
-    end
-
-    def represents?(assoc_name)
-      association_name.to_s == assoc_name.to_s
-    end
-
     private
 
-    ATTRIBUTES_KEY_REGEXP = /^(.+)_attributes$/
-
     def enable_autosave
-      reflection = association_reflection
-      reflection.autosave = true
-    end
-
-    def fill_association_with_attributes(association, attributes)
-      assoc_name = find_association_name_in(association).to_sym
-      form = find_form_by_assoc_name(assoc_name)
-      
-      form.submit(attributes)
-    end
-
-    def find_form_by_assoc_name(assoc_name)
-      forms.select { |form| form.represents?(assoc_name) }.first
-    end
-
-    def nested_params?(value)
-      value.is_a?(Hash)
-    end
-
-    def find_association_name_in(key)
-      ATTRIBUTES_KEY_REGEXP.match(key)[1]
+      association_reflection.autosave = true
     end
 
     def association_reflection
       parent.class.reflect_on_association(association_name)
     end
 
-    def build_model
-      macro = association_reflection.macro
+    def belongs_to_association?
+      association_reflection.macro == :belongs_to
+    end
 
-      case macro
+    def build_model
+      case association_reflection.macro
       when :belongs_to
-        if parent.send("#{association_name}")
-          parent.send("#{association_name}")
-        else
-          association_reflection.klass.new
-        end
+        parent.send(association_name) || association_reflection.klass.new
       when :has_one
-        fetch_or_initialize_model
+        parent.send(association_name) || parent.send("build_#{association_name}")
       when :has_many
         parent.send(association_name).build
       end
     end
-
-    def fetch_or_initialize_model
-      if parent.send("#{association_name}")
-        parent.send("#{association_name}")
-      else
-        parent.send("build_#{association_name}")
-      end
-    end
-
-    def assign_model(model)
-      if model
-        model
-      else
-        build_model
-      end
-    end
-
-    def aggregate_form_errors
-      forms.each do |form|
-        form.valid?
-        collect_errors_from(form)
-      end
-    end
-
-    def collect_errors_from(validatable_object)
-      validatable_object.errors.each do |attribute, error|
-        errors.add(attribute, error)
-      end
-    end
   end
-
 end

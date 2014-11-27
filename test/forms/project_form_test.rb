@@ -26,26 +26,12 @@ class ProjectFormTest < ActiveSupport::TestCase
     assert_respond_to ProjectForm, :association
   end
 
-  test "forms list contains sub-form definitions" do
-    assert_equal 4, ProjectForm.forms.size
-
-    tasks_definition = ProjectForm.forms[0]
-    contributors_definition = ProjectForm.forms[1]
-    project_tags_definition = ProjectForm.forms[2]
-    owner_definition = ProjectForm.forms[3]
-
-    assert_equal :tasks, tasks_definition.assoc_name
-    assert_equal :contributors, contributors_definition.assoc_name
-    assert_equal :project_tags, project_tags_definition.assoc_name
-    assert_equal :owner, owner_definition.assoc_name
-  end
-
   test "project form provides getter method for tasks sub-form" do
-    assert_instance_of ActiveForm::FormCollection, @tasks_form
+    assert_instance_of ActiveForm::CollectionForm, @tasks_form
   end
 
   test "project form provides getter method for contributors sub-form" do
-    assert_instance_of ActiveForm::FormCollection, @contributors_form
+    assert_instance_of ActiveForm::CollectionForm, @contributors_form
   end
 
   test "project form provides getter method for project_tags sub-form" do
@@ -138,7 +124,7 @@ class ProjectFormTest < ActiveSupport::TestCase
   test "project form initializes the number of records specified for tasks" do
     assert_respond_to @tasks_form, :models
     assert_equal 1, @tasks_form.models.size
-    
+
     @tasks_form.each do |form|
       assert_instance_of ActiveForm::Form, form
       assert_instance_of Task, form.model
@@ -294,7 +280,7 @@ class ProjectFormTest < ActiveSupport::TestCase
     ## FAILS
     ProjectTag.delete_all
     Tag.delete_all
-    
+
     tag = Tag.create(name: "Html Forms")
     project = Project.new
     project_form = ProjectForm.new(project)
@@ -464,11 +450,11 @@ class ProjectFormTest < ActiveSupport::TestCase
   test "update project with new owner" do
     project = Project.create(name: "Form Models", description: "GSoC 2014")
     project_form = ProjectForm.new(project)
-    
+
     params = {
       name: "Add Form Models",
       description: "Nesting models in a single form",
-      
+
       owner_attributes: {
         name: "Carlos Silva",
         role: "RoR Core Team",
@@ -495,11 +481,11 @@ class ProjectFormTest < ActiveSupport::TestCase
     owner = Person.create(name: "Carlos Silva", role: "RoR Core Member", description: "Mentoring Peter throughout GSoC")
     project = Project.create(name: "Form Models", description: "GSoC 2014")
     project_form = ProjectForm.new(project)
-    
+
     params = {
       name: "Add Form Models",
       description: "Nesting models in a single form",
-      
+
       owner_id: owner.id
     }
 
@@ -682,7 +668,7 @@ class ProjectFormTest < ActiveSupport::TestCase
     form = ProjectForm.new(project)
     params = {
       name: "Life",
-      
+
       tasks_attributes: {
         "0" => { name: "Eat", done: "1", id: tasks(:rake).id },
         "1" => { name: "Pray", done: "1", id: tasks(:paint).id },
@@ -698,10 +684,10 @@ class ProjectFormTest < ActiveSupport::TestCase
     assert_equal "Life", form.name
     assert_equal "Eat", form.tasks[0].name
     assert_equal true, form.tasks[0].done
-    
+
     assert_equal "Pray", form.tasks[1].name
     assert_equal true, form.tasks[1].done
-    
+
     assert_equal 2, form.tasks.size
   end
 
@@ -757,5 +743,5 @@ class ProjectFormTest < ActiveSupport::TestCase
   test "project form responds to owner writer method" do
     assert_respond_to @form, :owner_attributes=
   end
-  
+
 end

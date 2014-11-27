@@ -13,7 +13,7 @@ class TwoNestedCollectionsFormTest < ActiveSupport::TestCase
   test "main form provides getter method for questions collection form" do
     questions_form = @form.forms.first
 
-    assert_instance_of ActiveForm::FormCollection, questions_form
+    assert_instance_of ActiveForm::CollectionForm, questions_form
   end
 
   test "#represents? returns true if the argument matches the Form's association name, false otherwise" do
@@ -42,11 +42,11 @@ class TwoNestedCollectionsFormTest < ActiveSupport::TestCase
     assert_equal @survey, questions_form.parent
   end
 
-  test "each questions_form declares a answers FormCollection" do
+  test "each questions_form declares a answers CollectionForm" do
     questions_form = @form.forms.first
 
     assert_equal 1, questions_form.forms.size
-    
+
     @form.questions.each do |question_form|
       assert_instance_of ActiveForm::Form, question_form
       assert_instance_of Question, question_form.model
@@ -66,7 +66,7 @@ class TwoNestedCollectionsFormTest < ActiveSupport::TestCase
 
     assert_respond_to questions_form, :models
     assert_equal 1, questions_form.models.size
-    
+
     questions_form.each do |form|
       assert_instance_of ActiveForm::Form, form
       assert_instance_of Question, form.model

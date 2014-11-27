@@ -20,12 +20,6 @@ class NestedModelFormTest < ActiveSupport::TestCase
     assert_respond_to UserWithEmailFormFixture, :forms
   end
 
-  test "forms list contains form definitions" do
-    email_definition = UserWithEmailFormFixture.forms.first
-
-    assert_equal :email, email_definition.assoc_name
-  end
-
   test "contains getter for email sub-form" do
     assert_respond_to @form, :email
     assert_instance_of ActiveForm::Form, @form.email
@@ -89,7 +83,7 @@ class NestedModelFormTest < ActiveSupport::TestCase
   test "email sub-form validates the model" do
     existing_email = emails(:peters)
     @email_form.address = existing_email.address
-    
+
     assert_not @email_form.valid?
     assert_includes @email_form.errors.messages[:address], "has already been taken"
 
@@ -138,7 +132,7 @@ class NestedModelFormTest < ActiveSupport::TestCase
     assert_equal 23, @form.age
     assert_equal 0, @form.gender
     assert_equal "petrakos@gmail.com", @email_form.address
-    
+
     assert @form.persisted?
     assert @email_form.persisted?
   end
@@ -174,7 +168,7 @@ class NestedModelFormTest < ActiveSupport::TestCase
       name: peter.name,
       age: "23",
       gender: "0",
-      
+
       email_attributes: {
         address: peter.email.address
       }
