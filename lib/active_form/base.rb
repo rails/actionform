@@ -34,17 +34,11 @@ module ActiveForm
     class << self
       delegate :attributes, :association_scope, to: :main_association
 
-      def main_association
-        @@main_association ||= \
-          if main_model
-            ModelAssociation.new(main_model)
-          else
-            raise ArgumentError, "you need to set the main_model for this form," \
-              " like self.main_model = :article"
-          end
-      end
-
       private
+        def main_association
+          @@main_association ||= ModelAssociation.new(main_model)
+        end
+
         def main_model
           @main_model ||= name.sub(/Form$/, '')
         end
