@@ -1,6 +1,5 @@
 class ConferenceForm < ActiveForm::Base
   attributes :name, :city, required: true
-  attributes :photo
 
   association :speaker do
     attribute :name, :occupation, required: true

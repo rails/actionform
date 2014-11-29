@@ -2,7 +2,6 @@ require 'test_helper'
 
 class ConferenceFormTest < ActiveSupport::TestCase
   include ActiveModel::Lint::Tests
-  include ActionDispatch::TestProcess
 
   fixtures :conferences, :speakers, :presentations
 
@@ -442,30 +441,5 @@ class ConferenceFormTest < ActiveSupport::TestCase
 
   test "speaker sub-form responds to writer method" do
     assert_respond_to @form.speaker, :presentations_attributes=
-  end
-
-  test "accepts file" do
-    file = fixture_file_upload("demo.txt", "text/plain")
-
-    params = {
-      name: "GoGaruco",
-      city: "Golden State",
-      photo: file,
-
-      speaker_attributes: {
-        name: "John Doe",
-        occupation: "Developer",
-
-        presentations_attributes: {
-          "0" => { topic: "Rails OOP", duration: "1h", id: presentations(:ruby_oop).id },
-          "1" => { topic: "Rails Patterns", duration: "1h", id: presentations(:ruby_closures).id }
-        }
-      }
-    }
-
-    @form.submit(params)
-
-    assert @form.valid?
-    assert_equal @form.photo, "demo.txt"
   end
 end
