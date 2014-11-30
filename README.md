@@ -327,7 +327,7 @@ And `app/views/conferences/_presentation_fields.html.erb` would be:
 
 ActiveForm also can accept `ActiveModel::Model` instances as a model.
 
-Let's define the Feeback class class with `ActiveModel::Model` that will be used for customer's feedback:
+Let's define the Feedback class class with `ActiveModel::Model` that will be used for customer's feedback:
 
 ```ruby
 class Feedback
