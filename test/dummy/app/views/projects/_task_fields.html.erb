@@ -2,31 +2,34 @@
   <table>
     <tr>
       <td>
-        <%= f.input :name, :wrapper => 'inline', :label => false, :hint => 'name the task' do %>
-          <%= f.input_field :name, :hint => 'type the name' %>
+        <%= f.input :name, wrapper: 'inline', label: false, hint: 'name the task' do %>
+          <%= f.input_field :name, hint: 'type the name' %>
         <% end %>
       </td>
 
       <td>
-        <%= f.input :description, :wrapper => 'inline', :label => false, :hint => 'describe the task' do %>
-          <%= f.input_field :description, :hint => 'type the name' %>
+        <%= f.input :description, wrapper: 'inline', label: false, hint: 'describe the task' do %>
+          <%= f.input_field :description, hint: 'type the name' %>
         <% end %>
       </td>
 
       <td class="done_column">
-        <%= f.input :done, :as => :boolean %>
+        <%= f.input :done, as: :boolean %>
       </td>
 
-      <td><%= link_to_remove_association "remove task", f, :confirm => 'do you really want to do this?' %></td>
+      <td><%= link_to_remove_association "remove task", f, confirm: 'do you really want to do this?' %></td>
     </tr>
   </table>
 
   <div class="sub_tasks">
-    <%= f.simple_fields_for :sub_tasks, :wrapper => 'inline' do |sub_task| %>
-      <%= render "sub_task_fields", :f => sub_task %>
-    <% end %>
+    <div class="sub_tasks_container">
+      <%= render_association_template f, :sub_tasks, :render_options => { :wrapper => 'inline' } %>
+      <%= f.simple_fields_for :sub_tasks, wrapper: 'inline' do |sub_task| %>
+        <%= render "sub_task_fields", f: sub_task %>
+      <% end %>
+    </div>
     <div class="links">
-      <%= link_to_add_association 'add sub-task', f, :sub_tasks, :render_options => { :wrapper => 'inline' } %>
+      <%= link_to_add_association 'add sub-task', f, :sub_tasks, { data: {"association-insertion-node" => ".sub_tasks_container"}} %>
     </div>
   </div>
 </div>

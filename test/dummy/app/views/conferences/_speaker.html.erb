@@ -9,10 +9,13 @@
 </div>
 
 <h2>Presentantions</h2>
+<%= render_association_template f, :presentations %>
+<div class="presentations_list">
 <%= f.fields_for :presentations do |presentations_fields| %>
-  <%= render "presentation_fields", :f => presentations_fields %>
+  <%= render "presentation_fields", f: presentations_fields %>
 <% end %>
+</div>
 
 <div class="links">
-  <%= link_to_add_association "Add a Presentation", f, :presentations %>
+  <%= link_to_add_association "Add a Presentation", f, :presentations, data: { "association-insertion-node" => ".presentations_list" } %>
 </div>

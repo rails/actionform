@@ -17,13 +17,20 @@
   </div>
 
   <h2>Tasks Details</h2>
-  <%= f.fields_for :tasks do |task_fields| %>
-    <%= render "task_fields", :f => task_fields %>
-  <% end %>
+
+  <%= render_association_template(f, :tasks) %>
+  <div class="task_list">
+    <%= f.fields_for :tasks do |task_fields| %>
+      <%= render "task_fields", :f => task_fields %>
+    <% end %>
+  </div>
 
   <div class="links">
-    <%= link_to_add_association "Add a Task", f, :tasks %>
+    <%= link_to_add_association "Add a Task", f, :tasks, { data: {"association-insertion-node" => ".task_list"} } %>
   </div>
+
+  <!-- $(".task_list").addFormField("tasks") -->
+  <!-- $(".task_list").removeFormField("tasks", 2) -->
 
   <div class="actions">
     <%= f.submit %>
