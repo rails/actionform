@@ -20,7 +20,7 @@ module Rails
       end
 
       def include_js_file
-        insert_into_file "app/assets/javascripts/application.js", "//= require link_helpers", :before => "//= require_tree ."
+        insert_into_file "app/assets/javascripts/application.js", "//= require activeform", :before => "//= require_tree ."
       end
     end
   end

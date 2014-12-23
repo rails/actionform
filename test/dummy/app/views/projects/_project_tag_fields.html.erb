@@ -1,7 +1,8 @@
 <div class="nested-fields project-tag-fields">
+  <%= render_association_template f, :tag, :render_options => { :wrapper => 'inline' } %>
   <div id="tag_from_list">
     <%= f.association :tag, :collection => Tag.order(:name), :prompt => 'Choose an existing tag' %>
   </div>
-  <%= link_to_add_association 'or create a new tag', f, :tag, :render_options => { :wrapper => 'inline' } %>
+  <%= link_to_add_association 'or create a new tag', f, :tag %>
   <%= link_to_remove_association "remove tag", f %>
 </div>

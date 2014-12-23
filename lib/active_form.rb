@@ -10,7 +10,7 @@ module ActiveForm
 
     config.before_initialize do
       if config.action_view.javascript_expansions
-        config.action_view.javascript_expansions[:link_helpers] = %w(link_helpers)
+        config.action_view.javascript_expansions[:activeform] = %w(activeform)
       end
     end
 

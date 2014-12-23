@@ -1,5 +1,5 @@
 <%= simple_form_for @project_form, wrapper: 'inline' do |f| %>
-  <%= f.input :name, :hint => 'The title of your project' %>
+  <%= f.input :name, hint: 'The title of your project' %>
 
   <ul class="nav nav-tabs tabs">
     <li class="active">
@@ -21,39 +21,47 @@
 
   <div class="tab-content">
     <div id="tasks" class="active">
-      <%= f.simple_fields_for :tasks, wrapper: 'inline' do |task| %>
-        <%= render 'task_fields', :f => task %>
-      <% end %>
+      <%= render_association_template f, :tasks, render_options: { wrapper: 'inline' } %>
+      <div class="tasks">
+        <%= f.simple_fields_for :tasks, wrapper: 'inline' do |task| %>
+          <%= render 'task_fields', f: task %>
+        <% end %>
+      </div>
       <div class="links">
-        <%= link_to_add_association 'add task', f, :tasks, :render_options => { :wrapper => 'inline' } %>
+        <%= link_to_add_association 'add task', f, :tasks, { data: {"association-insertion-node" => ".tasks"} } %>
       </div>
     </div>
 
     <div id="people">
+      <%= render_association_template f, :contributors, render_options: { wrapper: 'inline' } %>
       <%= f.simple_fields_for :contributors, wrapper: 'inline' do |contributor| %>
-        <%= render 'contributor_fields', :f => contributor %>
+        <%= render 'contributor_fields', f: contributor %>
       <% end %>
       <div class="links">
-        <%= link_to_add_association 'add contributor', f, :contributors, :render_options => { :wrapper => 'inline' } %>
+        <%= link_to_add_association 'add contributor', f, :contributors %>
       </div>
     </div>
 
     <div id="owner">
+      <%= render_association_template f, :owner, render_options: { wrapper: 'inline' } %>
       <div id="owner_from_list">
-        <%= f.association :owner, :collection => Person.order(:name), :prompt => 'Choose an existing owner' %>
+        <%= f.association :owner, collection: Person.order(:name), prompt: 'Choose an existing owner' %>
       </div>
-      <%= link_to_add_association 'add a new person as owner', f, :owner, :render_options => { :wrapper => 'inline' } %>
+      <%= link_to_add_association 'add a new person as owner', f, :owner, data: { "association-insertion-node" => "#owner_from_list" } %>
     </div>
 
     <div id="tags">
-      <%= f.simple_fields_for :project_tags, wrapper: 'inline' do |project_tag| %>
-        <%= render 'project_tag_fields', :f => project_tag %>
-      <% end %>
-      <%= link_to_add_association 'add a tag', f, :project_tags, :render_options => { :wrapper => 'inline' } %>
+      <%= render_association_template f, :project_tags, render_options: { wrapper: 'inline' } %>
+      <div class="project_tags_container">
+        <%= f.simple_fields_for :project_tags, wrapper: 'inline' do |project_tag| %>
+          <%= render 'project_tag_fields', f: project_tag %>
+        <% end %>
+      </div>
+      <%= link_to_add_association 'add a tag', f, :project_tags, data: { "association-insertion-node" => ".project_tags_container" } %>
     </div>
   </div>
 
   <div class="actions">
-    <%= f.button :submit, :disable_with => 'Please wait ...' %>
+    <%= f.button :submit, disable_with: 'Please wait ...' %>
   </div>
 <% end %>

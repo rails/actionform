@@ -242,7 +242,7 @@ Active Form comes with two helpers to deal with this functionality:
 1. `link_to_add_association` will display a link that renders fields to create a new object.
 2. `link_to_remove_association` will display a link to remove a existing/dynamic object.
 
-In order to use it you have to insert this line: `//= require link_helpers` to your `app/assets/javascript/application.js` file.
+In order to use it you have to insert this line: `//= require activeform` to your `app/assets/javascript/application.js` file.
 
 In our `ConferenceForm` we can dynamically create/remove `Speaker` objects. To do that we would write in the `app/views/conferences/_form.html.erb` partial:
 
@@ -271,12 +271,16 @@ In our `ConferenceForm` we can dynamically create/remove `Speaker` objects. To d
   </div>
 
   <h2>Speaker Details</h2>
-  <%= f.fields_for :speakers do |speaker_fields| %>
-    <%= render "speaker_fields", :f => speaker_fields %>
-  <% end %>
+
+  <%= render_association_template f, :speakers %>
+  <div class="speakers_list">
+    <%= f.fields_for :speakers do |speaker_fields| %>
+      <%= render "speaker_fields", :f => speaker_fields %>
+    <% end %>
+  </div>
 
   <div class="links">
-    <%= link_to_add_association "Add a Speaker", f, :speakers %>
+    <%= link_to_add_association "Add a Speaker", f, :speakers, data: { "association-insertion-node" => ".speakers_list" } %>
   </div>
 
   <div class="actions">
