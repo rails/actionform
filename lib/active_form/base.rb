@@ -16,12 +16,20 @@ module ActiveForm
     end
 
     def submit(params)
+      multi_parameter_attributes  = []
+
       params.each do |key, value|
-        if nested_params?(value)
+        if key.to_s.include?("(")
+          multi_parameter_attributes << [ key, value ]
+        elsif nested_params?(value)
           fill_association_with_attributes(key, value)
         else
           send("#{key}=", value)
         end
+      end
+
+      if multi_parameter_attributes.present?
+        assign_multiparameter_attributes(multi_parameter_attributes)
       end
     end
 
@@ -163,6 +171,49 @@ module ActiveForm
 
         errors.add(key, error)
       end
+    end
+
+    def assign_multiparameter_attributes(pairs)
+      execute_callstack_for_multiparameter_attributes(
+        extract_callstack_for_multiparameter_attributes(pairs)
+      )
+    end
+
+    def execute_callstack_for_multiparameter_attributes(callstack)
+      errors = []
+      callstack.each do |name, values_with_empty_parameters|
+        begin
+          send("#{name}=", MultiparameterAttribute.new(self, name, values_with_empty_parameters).read_value)
+        rescue => ex
+          errors << AttributeAssignmentError.new("error on assignment #{values_with_empty_parameters.values.inspect} to #{name} (#{ex.message})", ex, name)
+        end
+      end
+      if errors.present?
+        error_descriptions = errors.map { |ex| ex.message }.join(",")
+        raise MultiparameterAssignmentErrors.new(errors), "#{errors.size} error(s) on assignment of multiparameter attributes [#{error_descriptions}]"
+      end
+    end
+
+    def extract_callstack_for_multiparameter_attributes(pairs)
+      attributes = {}
+
+      pairs.each do |(multiparameter_name, value)|
+        attribute_name = multiparameter_name.split("(").first
+        attributes[attribute_name] ||= {}
+
+        parameter_value = value.empty? ? nil : type_cast_attribute_value(multiparameter_name, value)
+        attributes[attribute_name][find_parameter_position(multiparameter_name)] ||= parameter_value
+      end
+
+      attributes
+    end
+
+    def type_cast_attribute_value(multiparameter_name, value)
+      multiparameter_name =~ /\([0-9]*([if])\)/ ? value.send("to_" + $1) : value
+    end
+
+    def find_parameter_position(multiparameter_name)
+      multiparameter_name.scan(/\(([0-9]*).*\)/).first.first.to_i
     end
   end
 
