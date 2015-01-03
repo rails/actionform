@@ -138,7 +138,7 @@ class ProjectFormTest < ActiveSupport::TestCase
   test "project form initializes the number of records specified for tasks" do
     assert_respond_to @tasks_form, :models
     assert_equal 1, @tasks_form.models.size
-    
+
     @tasks_form.each do |form|
       assert_instance_of ActiveForm::Form, form
       assert_instance_of Task, form.model
@@ -228,6 +228,36 @@ class ProjectFormTest < ActiveSupport::TestCase
     assert_nil project_form.model.owner
   end
 
+  test "accepts multiattributes" do
+    project = Project.new
+    project_form = ProjectForm.new(project)
+
+    params = {
+      name: "Add Form Models",
+      description: "Google Summer of Code 2014",
+      "published_at(3i)"=>"10",
+      "published_at(2i)"=>"12",
+      "published_at(1i)"=>"2014",
+      "published_at(4i)"=>"02",
+      "published_at(5i)"=>"29",
+      owner_attributes: {
+        name: "",
+        role: "",
+        description: ""
+      }
+    }
+
+    project_form.submit(params)
+
+    assert_equal Time.zone.local(2014, 12, 10, 02, 29), project_form.published_at
+
+    assert_difference('Project.count') do
+      project_form.save
+    end
+
+    assert_nil project_form.model.owner
+  end
+
   test "reject contributor if attributes are all blank" do
     project = Project.new
     project_form = ProjectForm.new(project)
@@ -294,7 +324,7 @@ class ProjectFormTest < ActiveSupport::TestCase
     ## FAILS
     ProjectTag.delete_all
     Tag.delete_all
-    
+
     tag = Tag.create(name: "Html Forms")
     project = Project.new
     project_form = ProjectForm.new(project)
@@ -464,11 +494,11 @@ class ProjectFormTest < ActiveSupport::TestCase
   test "update project with new owner" do
     project = Project.create(name: "Form Models", description: "GSoC 2014")
     project_form = ProjectForm.new(project)
-    
+
     params = {
       name: "Add Form Models",
       description: "Nesting models in a single form",
-      
+
       owner_attributes: {
         name: "Carlos Silva",
         role: "RoR Core Team",
@@ -495,11 +525,11 @@ class ProjectFormTest < ActiveSupport::TestCase
     owner = Person.create(name: "Carlos Silva", role: "RoR Core Member", description: "Mentoring Peter throughout GSoC")
     project = Project.create(name: "Form Models", description: "GSoC 2014")
     project_form = ProjectForm.new(project)
-    
+
     params = {
       name: "Add Form Models",
       description: "Nesting models in a single form",
-      
+
       owner_id: owner.id
     }
 
@@ -568,7 +598,16 @@ class ProjectFormTest < ActiveSupport::TestCase
       name: "Add Form Models",
 
       tasks_attributes: {
-        "0" => { name: "Form unit", description: "Form to represent a single model", done: false },
+        "0" => {
+          name: "Form unit",
+          description: "Form to represent a single model",
+          done: false,
+          "finished_at(3i)"=>"10",
+          "finished_at(2i)"=>"12",
+          "finished_at(1i)"=>"2014",
+          "finished_at(4i)"=>"02",
+          "finished_at(5i)"=>"29",
+        },
       }
     }
 
@@ -579,6 +618,8 @@ class ProjectFormTest < ActiveSupport::TestCase
     assert_equal "Form unit", @form.tasks[0].name
     assert_equal "Form to represent a single model", @form.tasks[0].description
     assert_equal false, @form.tasks[0].done
+
+    assert_equal Time.zone.local(2014, 12, 10, 02, 29), @form.tasks[0].finished_at
 
     assert_equal 1, @form.tasks.size
   end
@@ -682,7 +723,7 @@ class ProjectFormTest < ActiveSupport::TestCase
     form = ProjectForm.new(project)
     params = {
       name: "Life",
-      
+
       tasks_attributes: {
         "0" => { name: "Eat", done: "1", id: tasks(:rake).id },
         "1" => { name: "Pray", done: "1", id: tasks(:paint).id },
@@ -698,10 +739,10 @@ class ProjectFormTest < ActiveSupport::TestCase
     assert_equal "Life", form.name
     assert_equal "Eat", form.tasks[0].name
     assert_equal true, form.tasks[0].done
-    
+
     assert_equal "Pray", form.tasks[1].name
     assert_equal true, form.tasks[1].done
-    
+
     assert_equal 2, form.tasks.size
   end
 
@@ -757,5 +798,5 @@ class ProjectFormTest < ActiveSupport::TestCase
   test "project form responds to owner writer method" do
     assert_respond_to @form, :owner_attributes=
   end
-  
+
 end

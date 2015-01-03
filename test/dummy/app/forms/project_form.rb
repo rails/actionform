@@ -1,8 +1,8 @@
 class ProjectForm < ActiveForm::Base
-  attributes :name, :description, :owner_id
+  attributes :name, :description, :owner_id, :published_at
 
   association :tasks do
-    attributes :name, :description, :done
+    attributes :name, :description, :done, :finished_at
 
     association :sub_tasks do
       attributes :name, :description, :done
