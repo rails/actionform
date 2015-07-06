@@ -1,6 +1,7 @@
 language: ruby
 rvm:
-  - 2.1.1
+  - 2.1
+  - 2.2
 script:
   - cd test/dummy/
   - RAILS_ENV=test bundle exec rake db:migrate

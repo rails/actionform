@@ -39,18 +39,18 @@ class SongsControllerTest < ActionController::TestCase
 
     assert song_form.valid?
     assert_redirected_to song_path(song_form)
-    
+
     assert_equal "Diamonds", song_form.title
     assert_equal "360", song_form.length
-    
+
     assert_equal "Karras", song_form.artist.name
-    
+
     assert_equal "Phoebos", song_form.artist.producer.name
     assert_equal "MADog", song_form.artist.producer.studio
 
     assert song_form.artist.persisted?
     assert song_form.artist.producer.persisted?
-    
+
     assert_equal "Song: Diamonds was successfully created.", flash[:notice]
   end
 
@@ -72,15 +72,20 @@ class SongsControllerTest < ActionController::TestCase
     end
 
     song_form = assigns(:song_form)
-    
+
     assert_not song_form.valid?
-    assert_includes song_form.errors.messages[:title], "can't be blank"
-    assert_includes song_form.errors.messages[:length], "can't be blank"
-    
-    assert_includes song_form.errors.messages[:name], "can't be blank"
-    
-    assert_includes song_form.artist.producer.errors.messages[:name], "can't be blank"
-    assert_includes song_form.errors.messages[:studio], "can't be blank"
+
+    assert_includes song_form.errors[:title], "can't be blank"
+    assert_includes song_form.errors[:length], "can't be blank"
+
+    assert_includes song_form.errors["artist.name"], "can't be blank"
+    assert_includes song_form.artist.errors[:name], "can't be blank"
+
+    assert_includes song_form.artist.producer.errors[:name], "can't be blank"
+    assert_includes song_form.artist.producer.errors[:studio], "can't be blank"
+
+    assert_includes song_form.errors["artist.producer.name"], "can't be blank"
+    assert_includes song_form.errors["artist.producer.studio"], "can't be blank"
   end
 
   test "should show song" do
@@ -109,19 +114,19 @@ class SongsControllerTest < ActionController::TestCase
         }
       }
     end
-    
+
     song_form = assigns(:song_form)
 
     assert_redirected_to song_path(song_form)
-    
+
     assert_equal "Run this town", song_form.title
     assert_equal "355", song_form.length
-    
+
     assert_equal "Rihanna", song_form.artist.name
-    
+
     assert_equal "Eminem", song_form.artist.producer.name
     assert_equal "Marshall", song_form.artist.producer.studio
-    
+
     assert_equal "Song: Run this town was successfully updated.", flash[:notice]
   end
 

@@ -1,4 +1,4 @@
-class AssignmentForm < ActiveForm::Base
+class AssignmentForm < ActionForm::Base
   self.main_model = :assignment
   
   attribute :name, required: true

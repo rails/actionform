@@ -1,5 +1,4 @@
 require 'test_helper'
-require_relative 'survey_form_fixture'
 
 class TwoNestedCollectionsFormTest < ActiveSupport::TestCase
   include ActiveModel::Lint::Tests
@@ -7,14 +6,14 @@ class TwoNestedCollectionsFormTest < ActiveSupport::TestCase
 
   def setup
     @survey = Survey.new
-    @form = SurveyFormFixture.new(@survey)
+    @form = SurveyForm.new(@survey)
     @model = @form
   end
 
   test "main form provides getter method for questions collection form" do
     questions_form = @form.forms.first
 
-    assert_instance_of ActiveForm::FormCollection, questions_form
+    assert_instance_of ActionForm::FormCollection, questions_form
   end
 
   test "#represents? returns true if the argument matches the Form's association name, false otherwise" do
@@ -30,7 +29,7 @@ class TwoNestedCollectionsFormTest < ActiveSupport::TestCase
     questions = @form.questions
 
     questions.each do |form|
-      assert_instance_of ActiveForm::Form, form
+      assert_instance_of ActionForm::Form, form
       assert_instance_of Question, form.model
     end
   end
@@ -47,16 +46,16 @@ class TwoNestedCollectionsFormTest < ActiveSupport::TestCase
     questions_form = @form.forms.first
 
     assert_equal 1, questions_form.forms.size
-    
+
     @form.questions.each do |question_form|
-      assert_instance_of ActiveForm::Form, question_form
+      assert_instance_of ActionForm::Form, question_form
       assert_instance_of Question, question_form.model
       assert_equal 1, questions_form.forms.size
 
       answers = question_form.answers
 
       answers.each do |answer_form|
-        assert_instance_of ActiveForm::Form, answer_form
+        assert_instance_of ActionForm::Form, answer_form
         assert_instance_of Answer, answer_form.model
       end
     end
@@ -67,9 +66,9 @@ class TwoNestedCollectionsFormTest < ActiveSupport::TestCase
 
     assert_respond_to questions_form, :models
     assert_equal 1, questions_form.models.size
-    
+
     questions_form.each do |form|
-      assert_instance_of ActiveForm::Form, form
+      assert_instance_of ActionForm::Form, form
       assert_instance_of Question, form.model
       assert_respond_to form, :content
       assert_respond_to form, :content=
@@ -80,7 +79,7 @@ class TwoNestedCollectionsFormTest < ActiveSupport::TestCase
       assert_equal 2, answers_form.models.size
 
       answers_form.each do |answer_form|
-        assert_instance_of ActiveForm::Form, answer_form
+        assert_instance_of ActionForm::Form, answer_form
         assert_instance_of Answer, answer_form.model
         assert_respond_to answer_form, :content
         assert_respond_to answer_form, :content=
@@ -93,7 +92,7 @@ class TwoNestedCollectionsFormTest < ActiveSupport::TestCase
   test "main form fetches parent and association objects" do
     survey = surveys(:programming)
 
-    form = SurveyFormFixture.new(survey)
+    form = SurveyForm.new(survey)
 
     assert_equal survey.name, form.name
     assert_equal 1, form.questions.size
@@ -165,8 +164,10 @@ class TwoNestedCollectionsFormTest < ActiveSupport::TestCase
     @form.submit(params)
 
     assert_not @form.valid?
-    assert_includes @form.errors.messages[:name], "can't be blank"
-    assert_includes @form.errors.messages[:content], "can't be blank"
+
+    assert_includes @form.errors[:name], "can't be blank"
+    assert_includes @form.errors["questions.content"], "can't be blank"
+    assert_includes @form.errors["questions.answers.content"], "can't be blank"
   end
 
   test "main form validates the model" do
@@ -282,7 +283,7 @@ class TwoNestedCollectionsFormTest < ActiveSupport::TestCase
 
   test "main form updates its model and the models in nested sub-forms" do
     survey = surveys(:programming)
-    form = SurveyFormFixture.new(survey)
+    form = SurveyForm.new(survey)
     params = {
       name: "Native languages",
 
@@ -314,7 +315,7 @@ class TwoNestedCollectionsFormTest < ActiveSupport::TestCase
 
   test "main form updates its model and saves dynamically added models in nested sub-forms" do
     survey = surveys(:programming)
-    form = SurveyFormFixture.new(survey)
+    form = SurveyForm.new(survey)
     params = {
       name: "Native languages",
 
@@ -357,7 +358,7 @@ class TwoNestedCollectionsFormTest < ActiveSupport::TestCase
 
   test "main form deletes models in nested sub-forms" do
     survey = surveys(:programming)
-    form = SurveyFormFixture.new(survey)
+    form = SurveyForm.new(survey)
     params = {
       name: "Native languages",
 
@@ -391,7 +392,7 @@ class TwoNestedCollectionsFormTest < ActiveSupport::TestCase
 
   test "main form deletes and adds models in nested sub-forms" do
     survey = surveys(:programming)
-    form = SurveyFormFixture.new(survey)
+    form = SurveyForm.new(survey)
     params = {
       name: "Native languages",
 

@@ -12,7 +12,7 @@
   <% end %>
 
   <h2>User details</h2>
-  
+
   <div class="field">
     <%= f.label :name %><br>
     <%= f.text_field :name %>
@@ -22,7 +22,7 @@
     <%= f.label :age %><br>
     <%= f.number_field :age %>
   </div>
-  
+
   <div class="field">
     <%= f.label :gender %><br>
     <%= f.select :gender, User.get_genders_dropdown %>
@@ -37,7 +37,7 @@
   <%= f.fields_for :profile do |profile_fields| %>
     <% render "profile", :profile => profile_fields %>
   <% end %>
-  
+
   <div class="actions">
     <%= f.submit %>
   </div>

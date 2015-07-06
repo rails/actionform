@@ -1,5 +1,4 @@
-class ProjectForm < ActiveForm::Base
-  self.main_model = :project
+class ProjectForm < ActionForm::Base
   attributes :name, :description, :owner_id
 
   association :tasks do
@@ -10,13 +9,13 @@ class ProjectForm < ActiveForm::Base
     end
   end
 
-  association :contributors do
+  association :contributors, records: 2 do
     attributes :name, :description, :role
   end
 
   association :project_tags do
     attribute :tag_id
-    
+
     association :tag do
       attribute :name
     end

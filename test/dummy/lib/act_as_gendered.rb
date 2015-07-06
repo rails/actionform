@@ -17,7 +17,7 @@ module ActAsGendered
 
   module ClassMethods
     def get_genders_dropdown
-      options = {
+      {
         MALE[:display_name] => MALE[:value],
         FEMALE[:display_name] => FEMALE[:value]
       }

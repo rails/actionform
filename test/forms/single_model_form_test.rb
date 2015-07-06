@@ -1,5 +1,5 @@
 require 'test_helper'
-require_relative 'user_form_fixture'
+require_relative '../fixtures/user_form_fixture'
 
 class SingleModelFormTest < ActiveSupport::TestCase
   include ActiveModel::Lint::Tests

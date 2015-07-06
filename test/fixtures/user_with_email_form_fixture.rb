@@ -1,4 +1,4 @@
-class UserForm < ActionForm::Base
+class UserWithEmailFormFixture < ActionForm::Base
   self.main_model = :user
   attributes :name, :age, :gender, required: true
 
@@ -6,10 +6,6 @@ class UserForm < ActionForm::Base
     attribute :address, required: true
   end
 
-  association :profile do
-    attributes :twitter_name, :github_name, required: true
-  end
-  
   validates :name, length: { in: 6..20 }
   validates :age, numericality: { only_integer: true }
 end

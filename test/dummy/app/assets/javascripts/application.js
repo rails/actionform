@@ -12,5 +12,5 @@
 //
 //= require jquery
 //= require jquery_ujs
-//= require link_helpers
+//= require action_form
 //= require_tree .

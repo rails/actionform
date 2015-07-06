@@ -1,5 +1,4 @@
 require 'test_helper'
-require_relative 'songs_form_fixture'
 
 class TwoNestingLevelFormTest < ActiveSupport::TestCase
   include ActiveModel::Lint::Tests
@@ -7,14 +6,14 @@ class TwoNestingLevelFormTest < ActiveSupport::TestCase
 
   def setup
     @song = Song.new
-    @form = SongsFormFixture.new(@song)
+    @form = SongForm.new(@song)
     @producer_form = @form.artist.producer
     @model = @form
   end
 
   test "contains getter for producer sub-form" do
     assert_respond_to @form.artist, :producer
-    assert_instance_of ActiveForm::Form, @producer_form
+    assert_instance_of ActionForm::Form, @producer_form
   end
 
   test "producer sub-form contains association name and parent model" do
@@ -30,7 +29,7 @@ class TwoNestingLevelFormTest < ActiveSupport::TestCase
 
   test "producer sub-form fetches models for existing parent" do
     song = songs(:lockdown)
-    form = SongsFormFixture.new(song)
+    form = SongForm.new(song)
     artist_form = form.artist
     producer_form = artist_form.producer
 
@@ -107,10 +106,10 @@ class TwoNestingLevelFormTest < ActiveSupport::TestCase
     @form.submit(params)
 
     assert_not @form.valid?
-    assert_includes @form.errors.messages[:title], "can't be blank"
-    assert_includes @form.errors.messages[:length], "can't be blank"
-    assert_includes @form.errors.messages[:name], "can't be blank"
-    assert_includes @form.errors.messages[:studio], "can't be blank"
+    assert_includes @form.errors[:title], "can't be blank"
+    assert_includes @form.errors[:length], "can't be blank"
+    assert_includes @form.errors["artist.name"], "can't be blank"
+    assert_includes @form.errors["artist.producer.studio"], "can't be blank"
 
     @form.title = "Diamonds"
     @form.length = "355"
@@ -136,14 +135,14 @@ class TwoNestingLevelFormTest < ActiveSupport::TestCase
         }
       }
     }
-    
+
     @form.submit(params)
 
     assert_not @form.valid?
-    assert_includes @form.errors.messages[:title], "has already been taken"
-    assert_includes @form.errors.messages[:name], "has already been taken"
-    assert_equal 2, @form.errors.messages[:name].size
-    assert_includes @form.errors.messages[:studio], "has already been taken"
+    assert_includes @form.errors[:title], "has already been taken"
+    assert_includes @form.errors["artist.name"], "has already been taken"
+    assert_includes @form.errors["artist.producer.name"], "has already been taken"
+    assert_includes @form.errors["artist.producer.studio"], "has already been taken"
   end
 
   test "main form saves its model and the models in nested sub-forms" do
@@ -193,7 +192,7 @@ class TwoNestingLevelFormTest < ActiveSupport::TestCase
         }
       }
     }
-    form = SongsFormFixture.new(song)
+    form = SongForm.new(song)
 
     form.submit(params)
 
