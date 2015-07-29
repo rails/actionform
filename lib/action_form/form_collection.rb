@@ -120,7 +120,7 @@ module ActionForm
     end
 
     def dynamic_key?(i)
-      i > forms.size
+      i >= forms.size
     end
 
     def aggregate_form_errors
