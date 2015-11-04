@@ -24,7 +24,7 @@
         insertionNode = insertionNode == "this" ? $link : $(insertionNode);
       }
     } else {
-      insertionNode = $link.parent();
+      insertionNode = $link;
     }
 
     var contentNode = $(newContent);
