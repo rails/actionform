@@ -1,0 +1,23 @@
+AllCops:
+  Exclude:
+    - 'db/**/*'
+    - 'bin/**/*'
+    - 'vendor/cache/**/*'
+
+  TargetRubyVersion: 2.3
+
+Metrics/LineLength:
+  Enabled: false
+  Max: 80
+
+Style/StringLiterals:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/BracesAroundHashParameters:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
