@@ -13,7 +13,7 @@ module ActionForm
       @forms = []
       @proc = proc
       enable_autosave
-      instance_eval &proc
+      instance_eval(&proc)
     end
 
     def class

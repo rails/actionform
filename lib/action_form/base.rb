@@ -21,6 +21,10 @@ module ActionForm
       form.get_model(assoc_name)
     end
 
+    def save!
+      save or raise ActiveRecord::RecordInvalid.new(self)
+    end
+
     def save
       if valid?
         run_callbacks :save do

@@ -4,7 +4,7 @@ class CreateEmails < ActiveRecord::Migration
       t.string :address
       t.references :user, index: true
 
-      t.timestamps
+      t.timestamps null: false
     end
   end
 end

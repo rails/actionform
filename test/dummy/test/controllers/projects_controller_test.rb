@@ -2,7 +2,7 @@ require 'test_helper'
 
 class ProjectsControllerTest < ActionController::TestCase
   fixtures :projects
-  
+
   setup do
     @project = projects(:yard)
   end
@@ -20,30 +20,30 @@ class ProjectsControllerTest < ActionController::TestCase
 
   test "should create project" do
     assert_difference('Project.count') do
-      post :create, project: { description: @project.description, name: @project.name }
+      post :create, wrapped_params(project: { description: @project.description, name: @project.name })
     end
 
     assert_redirected_to project_path(assigns(:project))
   end
 
   test "should show project" do
-    get :show, id: @project
+    get :show, wrapped_params(id: @project)
     assert_response :success
   end
 
   test "should get edit" do
-    get :edit, id: @project
+    get :edit, wrapped_params(id: @project)
     assert_response :success
   end
 
   test "should update project" do
-    patch :update, id: @project, project: { description: @project.description, name: @project.name }
+    patch :update, wrapped_params(id: @project, project: { description: @project.description, name: @project.name })
     assert_redirected_to project_path(assigns(:project))
   end
 
   test "should destroy project" do
     assert_difference('Project.count', -1) do
-      delete :destroy, id: @project
+      delete :destroy, wrapped_params(id: @project)
     end
 
     assert_redirected_to projects_path

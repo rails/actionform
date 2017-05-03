@@ -15,7 +15,7 @@ module ActionForm
     def valid?
       super
       model.valid?
-      
+
       collect_errors_from(model)
       aggregate_form_errors
 
@@ -23,7 +23,7 @@ module ActionForm
     end
 
     def nested_params?(value)
-      value.is_a?(Hash)
+      value.is_a?(Hash) || value.is_a?(ActionController::Parameters)
     end
 
     def find_association_name_in(key)

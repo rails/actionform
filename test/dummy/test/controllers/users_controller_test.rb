@@ -2,7 +2,7 @@ require 'test_helper'
 
 class UsersControllerTest < ActionController::TestCase
   fixtures :users, :emails, :profiles
-  
+
   setup do
     @user = users(:peter)
   end
@@ -20,33 +20,36 @@ class UsersControllerTest < ActionController::TestCase
 
   test "should create user" do
     assert_difference(['User.count', 'Email.count', 'Profile.count']) do
-      post :create, user: {
-        age: "23",
-        gender: "0",
-        name: "petrakos",
+      params = {
+        user: {
+          age: "23",
+          gender: "0",
+          name: "petrakos",
 
-        email_attributes: {
-          address: "petrakos@gmail.com"  
-        },
+          email_attributes: {
+            address: "petrakos@gmail.com"
+          },
 
-        profile_attributes: {
-          twitter_name: "t_peter",
-          github_name: "g_peter"
+          profile_attributes: {
+            twitter_name: "t_peter",
+            github_name: "g_peter"
+          }
         }
       }
+      post :create, wrapped_params(params)
     end
 
     user_form = assigns(:user_form)
 
     assert user_form.valid?
     assert_redirected_to user_path(user_form)
-    
+
     assert_equal "petrakos", user_form.name
     assert_equal 23, user_form.age
     assert_equal 0, user_form.gender
-    
+
     assert_equal "petrakos@gmail.com", user_form.email.address
-    
+
     assert_equal "t_peter", user_form.profile.twitter_name
     assert_equal "g_peter", user_form.profile.github_name
 
@@ -57,26 +60,29 @@ class UsersControllerTest < ActionController::TestCase
     peter = users(:peter)
 
     assert_difference(['User.count', 'Email.count', 'Profile.count'], 0) do
-      post :create, user: {
-        name: peter.name,
-        age: nil,
-        gender: "0",
+      params = {
+        user: {
+          name: peter.name,
+          age: nil,
+          gender: "0",
 
-        email_attributes: {
-          address: peter.email.address
-        },
+          email_attributes: {
+            address: peter.email.address
+          },
 
-        profile_attributes: {
-          twitter_name: peter.profile.twitter_name,
-          github_name: peter.profile.github_name
+          profile_attributes: {
+            twitter_name: peter.profile.twitter_name,
+            github_name: peter.profile.github_name
+          }
         }
       }
+      post :create, wrapped_params(params)
     end
 
     user_form = assigns(:user_form)
 
     assert_not user_form.valid?
-    
+
     assert_includes user_form.errors.messages[:name], "has already been taken"
     assert_includes user_form.errors.messages[:age], "can't be blank"
 
@@ -87,50 +93,53 @@ class UsersControllerTest < ActionController::TestCase
   end
 
   test "should show user" do
-    get :show, id: @user
+    get :show, wrapped_params(id: @user)
     assert_response :success
   end
 
   test "should get edit" do
-    get :edit, id: @user
+    get :edit, wrapped_params(id: @user)
     assert_response :success
   end
 
   test "should update user" do
     assert_difference(['User.count', 'Email.count', 'Profile.count'], 0) do
-      patch :update, id: @user, user: {
-        age: @user.age,
-        gender: @user.gender,
-        name: "petrakos",
+      params = {
+        id: @user, user: {
+          age: @user.age,
+          gender: @user.gender,
+          name: "petrakos",
 
-        email_attributes: {
-          address: "petrakos@gmail.com"
-        },
+          email_attributes: {
+            address: "petrakos@gmail.com"
+          },
 
-        profile_attributes: {
-          twitter_name: "t_peter",
-          github_name: "g_peter"
+          profile_attributes: {
+            twitter_name: "t_peter",
+            github_name: "g_peter"
+          }
         }
       }
+      patch :update, wrapped_params(params)
     end
 
     user_form = assigns(:user_form)
 
     assert_redirected_to user_path(user_form)
-    
+
     assert_equal "petrakos", user_form.name
-    
+
     assert_equal "petrakos@gmail.com", user_form.email.address
-    
+
     assert_equal "t_peter", user_form.profile.twitter_name
     assert_equal "g_peter", user_form.profile.github_name
-    
+
     assert_equal "User: #{user_form.name} was successfully updated.", flash[:notice]
   end
 
   test "should destroy user" do
     assert_difference('User.count', -1) do
-      delete :destroy, id: @user
+      delete :destroy, wrapped_params(id: @user)
     end
 
     assert_redirected_to users_path

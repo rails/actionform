@@ -5,7 +5,7 @@ class CreateSpeakers < ActiveRecord::Migration
       t.string :occupation
       t.references :conference, index: true
 
-      t.timestamps
+      t.timestamps null: false
     end
   end
 end

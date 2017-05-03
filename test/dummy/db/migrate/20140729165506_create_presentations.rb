@@ -5,7 +5,7 @@ class CreatePresentations < ActiveRecord::Migration
       t.string :duration
       t.references :speaker, index: true
 
-      t.timestamps
+      t.timestamps null: false
     end
   end
 end

@@ -3,7 +3,7 @@ class CreateAssignments < ActiveRecord::Migration
     create_table :assignments do |t|
       t.string :name
 
-      t.timestamps
+      t.timestamps null: false
     end
   end
 end
