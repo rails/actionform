@@ -6,7 +6,7 @@ class CreateSubTasks < ActiveRecord::Migration
       t.boolean :done
       t.references :task, index: true
 
-      t.timestamps
+      t.timestamps null: false
     end
   end
 end

@@ -6,7 +6,7 @@ class CreatePeople < ActiveRecord::Migration
       t.string :description
       t.references :project, index: true
 
-      t.timestamps
+      t.timestamps null: false
     end
   end
 end

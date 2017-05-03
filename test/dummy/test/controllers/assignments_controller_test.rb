@@ -20,15 +20,18 @@ class AssignmentsControllerTest < ActionController::TestCase
 
   test "should create assignment" do
     assert_difference('Assignment.count') do
-      post :create, assignment: {
-        name: "Life",
+      params = {
+        assignment: {
+          name: "Life",
 
-        tasks_attributes: {
-          "0" => { name: "Eat" },
-          "1" => { name: "Pray" },
-          "2" => { name: "Love" },
+          tasks_attributes: {
+            "0" => { name: "Eat" },
+            "1" => { name: "Pray" },
+            "2" => { name: "Love" },
+          }
         }
       }
+      post :create, wrapped_params(params)
     end
 
     assignment_form = assigns(:assignment_form)
@@ -53,15 +56,18 @@ class AssignmentsControllerTest < ActionController::TestCase
     assignment = assignments(:yard)
 
     assert_difference('Assignment.count', 0) do
-      post :create, assignment: {
-        name: assignment.name,
+      params = {
+        assignment: {
+          name: assignment.name,
 
-        tasks_attributes: {
-          "0" => { name: nil },
-          "1" => { name: nil },
-          "2" => { name: nil },
+          tasks_attributes: {
+            "0" => { name: nil },
+            "1" => { name: nil },
+            "2" => { name: nil },
+          }
         }
       }
+      post :create, wrapped_params(params)
     end
 
     assignment_form = assigns(:assignment_form)
@@ -75,26 +81,29 @@ class AssignmentsControllerTest < ActionController::TestCase
   end
 
   test "should show assignment" do
-    get :show, id: @assignment
+    get :show, wrapped_params(id: @assignment)
     assert_response :success
   end
 
   test "should get edit" do
-    get :edit, id: @assignment
+    get :edit, wrapped_params(id: @assignment)
     assert_response :success
   end
 
   test "should update assignment" do
     assert_difference('Assignment.count', 0) do
-      patch :update, id: @assignment, assignment: {
-        name: "Car service",
+      params = {
+        id: @assignment, assignment: {
+          name: "Car service",
 
-        tasks_attributes: {
-          "0" => { name: "Wash tires", id: tasks(:rake).id },
-          "1" => { name: "Clean inside", id: tasks(:paint).id },
-          "2" => { name: "Check breaks", id: tasks(:clean).id },
+          tasks_attributes: {
+            "0" => { name: "Wash tires", id: tasks(:rake).id },
+            "1" => { name: "Clean inside", id: tasks(:paint).id },
+            "2" => { name: "Check breaks", id: tasks(:clean).id },
+          }
         }
       }
+      patch :update, wrapped_params(params)
     end
 
     assignment_form = assigns(:assignment_form)
@@ -112,7 +121,7 @@ class AssignmentsControllerTest < ActionController::TestCase
 
   test "should destroy assignment" do
     assert_difference('Assignment.count', -1) do
-      delete :destroy, id: @assignment
+      delete :destroy, wrapped_params(id: @assignment)
     end
 
     assert_redirected_to assignments_path

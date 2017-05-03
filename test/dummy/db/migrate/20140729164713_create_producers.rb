@@ -5,7 +5,7 @@ class CreateProducers < ActiveRecord::Migration
       t.string :studio
       t.references :artist, index: true
 
-      t.timestamps
+      t.timestamps null: false
     end
   end
 end

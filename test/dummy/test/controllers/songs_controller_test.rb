@@ -20,19 +20,22 @@ class SongsControllerTest < ActionController::TestCase
 
   test "should create song" do
     assert_difference(['Song.count', 'Artist.count', 'Producer.count']) do
-      post :create, song: {
-        title: "Diamonds",
-        length: "360",
+      params = {
+        song: {
+          title: "Diamonds",
+          length: "360",
 
-        artist_attributes: {
-          name: "Karras",
+          artist_attributes: {
+            name: "Karras",
 
-          producer_attributes: {
-            name: "Phoebos",
-            studio: "MADog"
+            producer_attributes: {
+              name: "Phoebos",
+              studio: "MADog"
+            }
           }
         }
       }
+      post :create, wrapped_params(params)
     end
 
     song_form = assigns(:song_form)
@@ -56,19 +59,22 @@ class SongsControllerTest < ActionController::TestCase
 
   test "should not create song with invalid params" do
     assert_difference(['Song.count', 'Artist.count', 'Producer.count'], 0) do
-      post :create, song: {
-        title: nil,
-        length: nil,
+      params = {
+        song: {
+          title: nil,
+          length: nil,
 
-        artist_attributes: {
-          name: nil,
-
-          producer_attributes: {
+          artist_attributes: {
             name: nil,
-            studio: nil
+
+            producer_attributes: {
+              name: nil,
+              studio: nil
+            }
           }
         }
       }
+      post :create, wrapped_params(params)
     end
 
     song_form = assigns(:song_form)
@@ -89,30 +95,33 @@ class SongsControllerTest < ActionController::TestCase
   end
 
   test "should show song" do
-    get :show, id: @song
+    get :show, wrapped_params(id: @song)
     assert_response :success
   end
 
   test "should get edit" do
-    get :edit, id: @song
+    get :edit, wrapped_params(id: @song)
     assert_response :success
   end
 
   test "should update song" do
     assert_difference(['Song.count', 'Artist.count', 'Producer.count'], 0) do
-      patch :update, id: @song, song: {
-        title: "Run this town",
-        length: "355",
+      params = {
+        id: @song, song: {
+          title: "Run this town",
+          length: "355",
 
-        artist_attributes: {
-          name: "Rihanna",
+          artist_attributes: {
+            name: "Rihanna",
 
-          producer_attributes: {
-            name: "Eminem",
-            studio: "Marshall"
+            producer_attributes: {
+              name: "Eminem",
+              studio: "Marshall"
+            }
           }
         }
       }
+      patch :update, wrapped_params(params)
     end
 
     song_form = assigns(:song_form)
@@ -132,7 +141,7 @@ class SongsControllerTest < ActionController::TestCase
 
   test "should destroy song" do
     assert_difference('Song.count', -1) do
-      delete :destroy, id: @song
+      delete :destroy, wrapped_params(id: @song)
     end
 
     assert_redirected_to songs_path

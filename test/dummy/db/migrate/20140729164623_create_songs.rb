@@ -4,7 +4,7 @@ class CreateSongs < ActiveRecord::Migration
       t.string :title
       t.string :length
 
-      t.timestamps
+      t.timestamps null: false
     end
   end
 end

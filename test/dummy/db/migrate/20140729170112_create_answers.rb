@@ -4,7 +4,7 @@ class CreateAnswers < ActiveRecord::Migration
       t.text :content
       t.references :question, index: true
 
-      t.timestamps
+      t.timestamps null: false
     end
   end
 end
